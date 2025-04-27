@@ -3,9 +3,9 @@
 import sys
 import os
 import traceback
-from srt import srt_to_list, list_to_srt
-from clean import clean_subtitle
-from format import adjust_subtitle_breaks
+from canto_subtitle_cleaner.srt import srt_to_list, list_to_srt
+from canto_subtitle_cleaner.clean import clean_subtitle
+from canto_subtitle_cleaner.format import adjust_subtitle_breaks
 
 SCRIPT_NAME = os.path.basename(__file__)
 DEBUG_MODE = True  # Set to True for debugging output
@@ -80,40 +80,46 @@ def quit():
     #os.system("pause")
     sys.exit(1)
 
-# Check if there are arguments 
-if len(sys.argv) < 2:
-    print(f"Error: No arguments provided. Please add arguments to the command.")
-    print_usage()
-    quit()
+def main():
+    global DEBUG_MODE, OUTPUT_PREFIX
 
-# Enable debug mode if --debug flag is present
-if "--debug" in sys.argv:
-    DEBUG_MODE = True
+    # Check if there are arguments 
+    if len(sys.argv) < 2:
+        print(f"Error: No arguments provided. Please add arguments to the command.")
+        print_usage()
+        quit()
 
-# -p argument for output file name prefix
-if "-p" in sys.argv:
-    prefix_index = sys.argv.index("-p")
-    if prefix_index + 1 < len(sys.argv):
-        OUTPUT_PREFIX = sys.argv[prefix_index + 1]
+    # Enable debug mode if --debug flag is present
+    if "--debug" in sys.argv:
+        DEBUG_MODE = True
+
+    # -p argument for output file name prefix
+    if "-p" in sys.argv:
+        prefix_index = sys.argv.index("-p")
+        if prefix_index + 1 < len(sys.argv):
+            OUTPUT_PREFIX = sys.argv[prefix_index + 1]
+        else:
+            print("Error: Missing value for -p argument.")
+            print_usage()
+            quit()
+
+    # Sanitize and validate input paths
+    def validate_path(path):
+        if not os.path.exists(path):
+            print(f"Error: The path '{path}' does not exist.")
+            quit()
+        return os.path.abspath(path)
+
+    # -d argument for directory of input SRT files
+    if sys.argv[1] == "-d":
+        if len(sys.argv) < 3:
+            print_usage()
+            quit()
+        input_directory = validate_path(sys.argv[2])
+        process_directory(input_directory, OUTPUT_PREFIX)
     else:
-        print("Error: Missing value for -p argument.")
-        print_usage()
-        quit()
+        input_file = validate_path(sys.argv[1])
+        process_file(input_file, OUTPUT_PREFIX)
 
-# Sanitize and validate input paths
-def validate_path(path):
-    if not os.path.exists(path):
-        print(f"Error: The path '{path}' does not exist.")
-        quit()
-    return os.path.abspath(path)
-
-# -d argument for directory of input SRT files
-if sys.argv[1] == "-d":
-    if len(sys.argv) < 3:
-        print_usage()
-        quit()
-    input_directory = validate_path(sys.argv[2])
-    process_directory(input_directory, OUTPUT_PREFIX)
-else:
-    input_file = validate_path(sys.argv[1])
-    process_file(input_file, OUTPUT_PREFIX)
+if __name__ == "__main__":
+    main()

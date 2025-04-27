@@ -1,8 +1,8 @@
 """Formats subtitles to ensure proper line breaks and spacing."""
 
-from parse import NO_BREAK_WORDS, is_non_chinese
 import re
 from datetime import datetime
+from canto_subtitle_cleaner.parse import NO_BREAK_WORDS, is_non_chinese
 
 def clean_subtitle_merge_tiny_and_huge_lines(text):
     lines = text.splitlines()

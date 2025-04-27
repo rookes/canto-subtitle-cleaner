@@ -1,6 +1,6 @@
 """Functions for cleaning a single Cantonese subtitle line."""
 import re
-import parse
+import canto_subtitle_cleaner.parse as parse
 
 ######################################## HELPER FUNCTIONS ########################################
 def resub(text, pattern, repl):

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "canto_subtitle_cleaner"
+version = "0.0.3"
+authors = [
+  { name="Jon Miller", email="jon.gray.miler@gmail.com" }
+]
+description = "A configurable tool for cleaning and standardizing AI-generated Cantonese subtitles to match the standards specified in https://github.com/notHulK11/CantoCaptions."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/rookes/canto-subtitle-cleaner"
+Issues = "https://github.com/rookes/canto-subtitle-cleaner/issues"
