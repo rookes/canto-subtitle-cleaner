@@ -1,5 +1,4 @@
-# Cusom ignores 
-*.srt
+tests/output/
 
 ############# STANDARD PYTHON GITIGNORE ################
 # Byte-compiled / optimized / DLL files

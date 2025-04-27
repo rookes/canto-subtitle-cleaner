@@ -482,6 +482,73 @@ def clean_subtitle_revert_uncommon_conventions(text):
 
     return resub(text, regex_list)
 
+def convert_chinese_numbers_in_text(text):
+    chinese_digits = {
+        '零': 0, '一': 1, '二': 2, '兩': 2, '两': 2, '三': 3, '四': 4,
+        '五': 5, '六': 6, '七': 7, '八': 8, '九': 9
+    }
+    chinese_units = {'十': 10, '百': 100, '千': 1000}
+    uncertain_words = {'幾', '數', '多', '餘', '約'}
+
+    pattern = re.compile(r'[零一二兩两三四五六七八九十百千]+')
+
+    def parse_chinese_number(chinese_num):
+        if any(word in chinese_num for word in uncertain_words):
+            return None
+
+        num = 0
+        unit = 1
+        temp = 0
+        last_was_digit = False
+
+        length = len(chinese_num)
+        i = 0
+        while i < length:
+            char = chinese_num[i]
+            if char in chinese_digits:
+                if last_was_digit:
+                    # Two digits in a row without unit = invalid
+                    return None
+                temp = chinese_digits[char]
+                i += 1
+                last_was_digit = True
+                if i < length:
+                    next_char = chinese_num[i]
+                    if next_char in chinese_units:
+                        unit = chinese_units[next_char]
+                        num += temp * unit
+                        temp = 0
+                        i += 1
+                        last_was_digit = False
+                    else:
+                        num += temp
+                        temp = 0
+                else:
+                    num += temp
+            elif char in chinese_units:
+                unit = chinese_units[char]
+                if i == 0:
+                    num += 1 * unit
+                i += 1
+                last_was_digit = False
+            else:
+                return None
+
+        if 10 < num < 10000:
+            return str(num)
+        else:
+            return None
+
+    def replacer(match):
+        chinese_num = match.group(0)
+        arabic_num = parse_chinese_number(chinese_num)
+        if arabic_num is not None:
+            return arabic_num
+        else:
+            return chinese_num
+
+    return pattern.sub(replacer, text)
+
 # Clean up a single text subtitle entry and return it
 def clean_subtitle(text):
     # Remove all line breaks and tabs
@@ -496,6 +563,7 @@ def clean_subtitle(text):
     text = clean_question_final_particles(text)
     text = clean_subtitle_punctuation(text)
     text = clean_subtitle_misc(text)
+    text = convert_chinese_numbers_in_text(text)
     text = clean_subtitle_particles(text)
     text = clean_subtitle_custom_standards(text)
 
