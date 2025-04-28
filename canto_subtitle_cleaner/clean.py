@@ -451,6 +451,7 @@ def clean_subtitle_custom_standards(text):
         (r'哈$', ''),
         (r'(嘻){2,}', ''),
         (r'(唔){2,}', ''),
+        (r'^唔？$', '嗯？'),
         (r'^唔$', ''),
         (r'^唔，', ''),
         (r'(嗯){2,}', ''),
@@ -458,7 +459,7 @@ def clean_subtitle_custom_standards(text):
         (r'(咦){2,}', ''),
         (r'咦[…？]', ''),
         (r'(呼){2,}', ''),
-        (r'呼[…]', '')
+        (r'[嘩呼]…', '')
     ]
     # Fix double punctuation
     regex_list_punctuation = [
