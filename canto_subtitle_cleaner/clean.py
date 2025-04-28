@@ -122,6 +122,11 @@ def clean_question_final_particles(text):
 
     text = resub(text, regex_list)
 
+    text = re.sub(r'[。.]', '，', text)
+    text = re.sub(r'!', '，', text)
+    text = re.sub(r',', '，', text)
+    text = re.sub(r'^，', '', text) # delete comma at start of line
+
     # Smart replacement of final particles based on question context
     segments = parse.segments(text)
 
@@ -148,9 +153,9 @@ def clean_question_final_particles(text):
 
 def clean_subtitle_punctuation(text):
     # Basic fixes to commas and periods, removing exclamation marks
-    text = re.sub(r'[。.]$', '', text)
+    # text = re.sub(r'[。.]$', '', text)
     text = re.sub(r'[。.]', '，', text)
-    text = re.sub(r'!', '', text)
+    text = re.sub(r'!', '，', text)
     text = re.sub(r',', '，', text)
     text = re.sub(r'^，', '', text) # delete comma at start of line
     
