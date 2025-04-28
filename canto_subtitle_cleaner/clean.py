@@ -482,7 +482,8 @@ def clean_subtitle_custom_standards(text):
         (r'^我，我', '我…我'),
         (r'^你，你', '你…你'),
         (r'^佢，佢', '佢…佢'),
-        (r'[嗯唔哦啊]…', '')
+        (r'[嗯唔哦啊]…', ''),
+        (r'喂喂…', '喂…')
     ]
     text = resub(text, regex_list_noise)
     text = resub(text, regex_list_punctuation)
