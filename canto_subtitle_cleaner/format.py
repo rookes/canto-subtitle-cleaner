@@ -12,20 +12,27 @@ def linebreak(text, line_max_length=21):
 
     length = len(text)
 
-    if length <= line_max_length - 2:
+    if length <= line_max_length - 3:
         return text
 
     # We always want two lines. Restrict first line shorter for aesthetic reasons.
     firstline_min_length = max(length // 4, 4)
     firstline_max_length = min(length // 2, line_max_length - 1)
+    firstline_extended_length = min(length // 4 * 3, line_max_length - 3)
 
-    # if there is delimiting punctation, split after the first one
+    # If possible, split after delimiting punctuation in the first half the line
     for i in range(firstline_max_length, firstline_min_length - 1, -1):
         if re.match(RE_DELIMITING_PUNCTUATION, text[i]):
             return text[:i + 1] + '\n' + text[i + 1:]
+        
+    # Otherwise, split after delimiting punctuation in the second half of the line
+    for i in range(firstline_max_length, firstline_extended_length + 1):
+        if re.match(RE_DELIMITING_PUNCTUATION, text[i]):
+            return text[:i + 1] + '\n' + text[i + 1:]
 
+    # Otherwise, split at the first non-punctuation chinese character that's not in the middle of a word
     for i in range(firstline_max_length, firstline_min_length - 1, -1):
-        # split at the first non-punctuation chinese character that's not in the middle of a word
+        
         if is_punctuation(text[i]):
             return text[:i + 1] + '\n' + text[i + 1:]
         
@@ -35,6 +42,7 @@ def linebreak(text, line_max_length=21):
             
         return text[:i + 1] + '\n' + text[i + 1:] 
 
+    # If all else fails, just return the original text
     warnings.warn(f"No suitable line break found for line in line {text}.")
     return text
     
