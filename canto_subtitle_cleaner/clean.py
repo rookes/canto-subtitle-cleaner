@@ -597,6 +597,7 @@ def clean_subtitle(text):
     text = standardize_chars_hk(text)
     text = clean_question_final_particles(text)
     text = clean_subtitle_punctuation(text)
+    text = replace_standard_chinese(text)
     text = clean_subtitle_misc(text)
     text = convert_chinese_numbers_in_text(text)
     text = clean_subtitle_particles(text)
