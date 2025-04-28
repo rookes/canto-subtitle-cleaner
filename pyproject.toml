@@ -7,7 +7,7 @@ name = "canto_subtitle_cleaner"
 version = "0.0.3"
 dependencies = ["pycantonese>=3.4.0"]
 authors = [
-  { name="Jon Miller", email="jon.gray.miler@gmail.com" }
+  { name="Jon Miller", email="jon.gray.miller@gmail.com" }
 ]
 description = "A configurable tool for cleaning and standardizing AI-generated Cantonese subtitles to match the standards specified in https://github.com/notHulK11/CantoCaptions."
 readme = "README.md"

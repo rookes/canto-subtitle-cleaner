@@ -601,7 +601,8 @@ def clean_subtitle(text):
 
     # TODO: more line breaks and formatting
 
-    # Step 6: Remove trailing fullwidth commas
+    # Remove commas
+    text = re.sub(r'^，', '', text)
     text = re.sub(r'，$', '', text)
     text = re.sub(r'，(?=\n)', '', text) 
 

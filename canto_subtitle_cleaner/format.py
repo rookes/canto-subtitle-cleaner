@@ -12,7 +12,7 @@ def linebreak(text, line_max_length=21):
 
     length = len(text)
 
-    if length <= line_max_length:
+    if length <= line_max_length - 2:
         return text
 
     # We always want two lines. Restrict first line shorter for aesthetic reasons.
