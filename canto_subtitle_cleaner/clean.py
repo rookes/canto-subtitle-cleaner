@@ -1,6 +1,7 @@
 """Functions for cleaning a single Cantonese subtitle line."""
 import re
 import canto_subtitle_cleaner.parse as parse
+import canto_subtitle_cleaner.format as format
 
 ######################################## HELPER FUNCTIONS ########################################
 def resub(text, pattern, repl):
@@ -201,7 +202,9 @@ def clean_subtitle_misc(text):
         (r'黎$', '嚟'),
         (r'黎([？！，…\n])', r'嚟\1'),
         (r'黎([\u4e00-\u9fff][？！，…\n])', r'嚟\1'),
-        (r'^難道', '唔通')
+        (r'^難道', '唔通'),
+        ('傾計', '傾偈'),
+        (r'傾([\u4e00-\u9fff])計', r'傾\1偈')
     ]
     
     def fix_common_typos(text):
@@ -567,7 +570,9 @@ def clean_subtitle(text):
     text = clean_subtitle_particles(text)
     text = clean_subtitle_custom_standards(text)
 
-    # TODO: line breaks and formatting
+    text = format.linebreak(text)
+
+    # TODO: more line breaks and formatting
 
     # Step 6: Remove trailing fullwidth commas
     text = re.sub(r'，$', '', text)
