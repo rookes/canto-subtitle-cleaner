@@ -7,7 +7,7 @@ from canto_subtitle_cleaner.srt import srt_to_list, list_to_srt
 from canto_subtitle_cleaner.clean import clean_subtitle
 from canto_subtitle_cleaner.format import adjust_subtitle_breaks
 
-SCRIPT_NAME = os.path.basename(__file__)
+PACKAGE_NAME = 'canto_subtitle_cleaner'
 DEBUG_MODE = True  # Set to True for debugging output
 OUTPUT_PREFIX = "output_"  # Default prefix added to the output filename
 
@@ -71,7 +71,7 @@ def process_directory(input_directory, output_prefix):
     return
 
 def print_usage():
-    print(f"USAGE: python {SCRIPT_NAME} [<input_file> | -d <input_directory>] [-p <output_prefix>] [--debug]")
+    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-p <output_prefix>] [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
