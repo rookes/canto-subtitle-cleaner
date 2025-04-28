@@ -19,8 +19,8 @@ def linebreak(text, line_max_length=21):
     firstline_min_length = max(length // 4, 4)
     firstline_max_length = min(length // 2, line_max_length - 1)
 
+    # if there is delimiting punctation, split after the first one
     for i in range(firstline_min_length, firstline_max_length + 1):
-        # if there is delimiting punctation, split after the first one
         if re.match(RE_DELIMITING_PUNCTUATION, text[i]):
             return text[:i + 2] + '\n' + text[i + 2:]
 
@@ -30,7 +30,7 @@ def linebreak(text, line_max_length=21):
             return text[:i + 1] + '\n' + text[i + 1:]
         
         if (len(pycantonese.segment(text[i:i + 2])) == 1):
-            print(f"Skipping line break at {i} because it is in the middle of a word: {text[i:i + 2]}")
+            # print(f"Skipping line break at {i} because it is in the middle of a word: {text[i:i + 2]}")
             continue
             
         return text[:i + 1] + '\n' + text[i + 1:] 
