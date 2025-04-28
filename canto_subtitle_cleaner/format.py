@@ -20,7 +20,7 @@ def linebreak(text, line_max_length=21):
     firstline_max_length = min(length // 2, line_max_length - 1)
 
     # if there is delimiting punctation, split after the first one
-    for i in range(firstline_min_length, firstline_max_length + 1):
+    for i in range(firstline_max_length, firstline_min_length - 1, -1):
         if re.match(RE_DELIMITING_PUNCTUATION, text[i]):
             return text[:i + 1] + '\n' + text[i + 1:]
 
