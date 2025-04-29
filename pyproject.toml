@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "canto_subtitle_cleaner"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = ["pycantonese>=3.4.0"]
 authors = [
   { name="Jon Miller", email="jon.gray.miller@gmail.com" }
