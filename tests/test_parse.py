@@ -16,7 +16,7 @@ class TestParseFunctions(unittest.TestCase):
 
     def testLinebreak(self):
         self.assertEqual(clean_subtitle("雖然話大家係親戚,不過,我哋其實只係遠房親戚,而佢哋就負責輪流照顧我。")
-                         , "雖然話大家係親戚，不過\n我哋其實只係遠房親戚而佢哋就負責輪流照顧我")
+                         , "雖然話大家係親戚，不過\n我哋其實只係遠房親戚，而佢哋就負責輪流照顧我")
 
 if __name__ == "__main__":
     unittest.main()
