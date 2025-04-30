@@ -113,21 +113,26 @@ def replace_standard_chinese(text):
     ]
     return resub(text, regex_list)
 
-def clean_question_final_particles(text):
+def clean_punctuation(text):
     regex_list = [
+        (r'[\n\t]+', ' '), # Remove all line breaks and tabs
+        (r'﹑', '\''), # restore normal apostrophe
+        (r'([a-zA-Z])-([a-zA-Z])', r'\1\2'), # remove random hyphens
+        (r'([a-zA-Z])\s*([a-zA-Z])', r'\1\2'), # remove spaces between letters
+        (r'(?<![a-zA-Z])\s+(?![a-zA-Z])', ''), # remove spaces when not next to Latin characters
         (r'\?', '？'),
         (r'\.\.\.', '…'),
         ('… ', '…'),
-        (r'(?<![，。！!?.;？；…])係咪(?=[呀啊吖？])', '，係咪') # add comma to tag question 係咪
+        (r'[。.]', '，'),
+        (r'!', '，'),
+        (r',', '，'),
+        (r'^，', ''),
+        (r'，$', ''),
     ]
 
     text = resub(text, regex_list)
 
-    text = re.sub(r'[。.]', '，', text)
-    text = re.sub(r'!', '，', text)
-    text = re.sub(r',', '，', text)
-    text = re.sub(r'^，', '', text) # delete comma at start of line
-
+def clean_question_final_particles(text):
     # Smart replacement of final particles based on question context
     segments = parse.segments(text)
 
@@ -150,48 +155,27 @@ def clean_question_final_particles(text):
     segments = map(_update_segment, segments)
     text = ''.join(segments)
 
+    regex_list = [
+        (r'(?<![，。！!?.;？；…])係咪(?=[呀啊吖？])', '，係咪') # add comma to tag question 係咪
+        (r'㗎㗎', '㗎'),
+        (r'嘅？', '𠸏？'),
+        ('啦啦聲', '嗱嗱聲'),
+        (r'([啊喎喇啦㗎咋噃嘛嗎])(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', r'\1，'), #Add comma after final particles
+        (r'^啊…', '') # Remove isolated 啊…
+    ]
+
+    text = resub(text, regex_list)
+
     return text
 
-def clean_subtitle_punctuation(text):
-    # Basic fixes to commas and periods, removing exclamation marks
-    # text = re.sub(r'[。.]$', '', text)
-    text = re.sub(r'[。.]', '，', text)
-    text = re.sub(r'!', '，', text)
-    text = re.sub(r',', '，', text)
-    text = re.sub(r'^，', '', text) # delete comma at start of line
-    
-    # delete spaces when not next to Latin characters
-    text = re.sub(r'(?<![a-zA-Z])\s+(?![a-zA-Z])', '', text) 
-    
-    # Final particle related changes
-    text = re.sub(r'㗎㗎', '㗎', text)
-    text = re.sub(r'嘅？', '𠸏？', text)
-    text = re.sub('啦啦聲', '嗱嗱聲', text)
-
-    # Add a comma after final particles
-    text = re.sub(r'啊(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '啊，', text)
-    text = re.sub(r'喎(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '喎，', text)
-    text = re.sub(r'喇(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '喇，', text)
-    text = re.sub(r'啦(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '啦，', text)
-    text = re.sub(r'㗎(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '㗎，', text)
-    text = re.sub(r'咋(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '咋，', text)
-    text = re.sub(r'噃(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '噃，', text)
-    text = re.sub(r'嘛(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '嘛，', text)
-    text = re.sub(r'嗎(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯])', '嗎，', text)
-    
+def clean_subtitle_misc(text):
     # Add a comma before or after certain words    
     text = re.sub(r'(?<![？！，])(?<!^)(?<![之])但係(?![，！？])', r'，但係', text, flags=re.MULTILINE)
     text = re.sub(r'(?<![？！，])(?<!^)(?<![之只])不過(?![，！？])', r'，不過', text, flags=re.MULTILINE)
     text = re.sub(r'(?<![？！，])(?<!^)雖然(?![，！？])', r'，雖然', text, flags=re.MULTILINE)
     text = re.sub(r'(?<![？！，哋噉你佢我])(?<!^)首先(?![，！？])', r'，首先', text, flags=re.MULTILINE) #I think this will probably get a fair amount of false positives 
     text = re.sub(r'(?<![？！，])(?<!^)嘅話(?![，！？])', r'嘅話，', text, flags=re.MULTILINE)
-    
-    #remove trailing
-    text = re.sub(r'^啊…', '', text)
 
-    return text
-
-def clean_subtitle_misc(text):
     # Misc changes for conventions
     regex_list_misc = [
         (r'咁(?![多耐濟滯細大靚高簡廣厚短瘦長少痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈])', '噉'),
@@ -316,7 +300,7 @@ def clean_subtitle_misc(text):
     text = resub(text, regex_list_misc)
     return resub(text, regex_list_cantonese_errors)
 
-def clean_subtitle_particles(text):
+def update_particle_conventions(text):
     # Replace some final particles to get closer to conventions
     regex_list_particles = [
         (r'(?<!衫書十頭招衣帽李咪相棚房高)架(?=[，？…喇啦喎咯囉囖啫])', r'㗎'), # 架 to 㗎 avoiding 架-nouns
@@ -450,7 +434,7 @@ def clean_subtitle_particles(text):
     ]
     return resub(text, regex_list_particles)
 
-def clean_subtitle_custom_standards(text):
+def clean_interjections(text):
     # Delete certain noise/grunts
     regex_list_noise = [
         ('嘘，', ''),
@@ -592,22 +576,14 @@ def convert_chinese_numbers_in_text(text):
 
 # Clean up a single text subtitle entry and return it
 def clean_subtitle(text):
-    # Remove all line breaks and tabs
-    text = re.sub(r'[\n\t]+', ' ', text)
-
-    # Handle English better
-    text = re.sub(r'﹑', '\'', text) # restore normal apostrophe
-    text = re.sub(r'([a-zA-Z])-([a-zA-Z])', r'\1\2', text) # remove random hyphens
-    text = re.sub(r'([a-zA-Z])\n([a-zA-Z])', r'\1\2', text) # remove linebreaks in the middle of latin text
-    
+    text = clean_punctuation(text)
     text = standardize_chars_hk(text)
     text = clean_question_final_particles(text)
-    text = clean_subtitle_punctuation(text)
     text = replace_standard_chinese(text)
     text = clean_subtitle_misc(text)
     text = convert_chinese_numbers_in_text(text)
-    text = clean_subtitle_particles(text)
-    text = clean_subtitle_custom_standards(text)
+    text = update_particle_conventions(text)
+    text = clean_interjections(text)
 
     text = format.linebreak(text)
 
