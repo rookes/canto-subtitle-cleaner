@@ -115,7 +115,7 @@ def replace_standard_chinese(text):
 
 def clean_punctuation(text):
     regex_list = [
-        (r'[\n\t]+', ' '), # Remove all line breaks and tabs
+        (r'[\n\t]+', ''), # Remove all line breaks and tabs
         (r'﹑', '\''), # restore normal apostrophe
         (r'([a-zA-Z])-([a-zA-Z])', r'\1\2'), # remove random hyphens
         (r'([a-zA-Z])\s*([a-zA-Z])', r'\1\2'), # remove spaces between letters
@@ -127,10 +127,10 @@ def clean_punctuation(text):
         (r'!', '，'),
         (r',', '，'),
         (r'^，', ''),
-        (r'，$', ''),
+        (r'，$', '')
     ]
 
-    text = resub(text, regex_list)
+    return resub(text, regex_list)
 
 def clean_question_final_particles(text):
     # Smart replacement of final particles based on question context
@@ -156,7 +156,7 @@ def clean_question_final_particles(text):
     text = ''.join(segments)
 
     regex_list = [
-        (r'(?<![，。！!?.;？；…])係咪(?=[呀啊吖？])', '，係咪') # add comma to tag question 係咪
+        (r'(?<![，。！!?.;？；…])係咪(?=[呀啊吖？])', '，係咪'), # add comma to tag question 係咪
         (r'㗎㗎', '㗎'),
         (r'嘅？', '𠸏？'),
         ('啦啦聲', '嗱嗱聲'),
