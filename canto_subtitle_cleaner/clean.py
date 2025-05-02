@@ -1,6 +1,7 @@
 """Functions for cleaning a single Cantonese subtitle line."""
 import re
 import canto_subtitle_cleaner.parse as parse
+from canto_subtitle_cleaner.parse import ZH
 import canto_subtitle_cleaner.format as format
 
 ######################################## HELPER FUNCTIONS ########################################
@@ -124,10 +125,11 @@ def clean_punctuation(text):
         (r'\.\.\.', '…'),
         ('… ', '…'),
         (r'[。.]', '，'),
-        (r'!', '，'),
+        (r'[!！]', '，'),
         (r',', '，'),
         (r'^，', ''),
-        (r'，$', '')
+        (r'，$', ''),
+        (r'([，？…])[，？…]+', r'\1') # remove repeated punctuation
     ]
 
     return resub(text, regex_list)
@@ -143,10 +145,10 @@ def clean_question_final_particles(text):
         has_question_mark = s[-1] == '？'
         
         if parse.is_question(s):        # has question mark and question word
-            s = s.replace('呀','啊')
-            s = s.replace('啫', '唧')
+            s = s.replace('呀', '啊')
+            s = s.replace('啫？', '唧？')
         elif has_question_mark:         # has question mark and no question word
-            s = s.replace('㗎','嘎')
+            s = s.replace('㗎？','嘎？')
         else:                           # no question mark and no question word
             s = s.replace('呀','啊')
         
@@ -460,32 +462,25 @@ def clean_interjections(text):
         (r'(呼){2,}', ''),
         (r'[嘩呼]…', '')
     ]
-    # Fix double punctuation
-    regex_list_punctuation = [
-        ('，，', '，'),
-        ('？，', '？')
-    ]
+
     # Fix repeated speech
     regex_list_repeated = [
-        (r'([\u4e00-\u9fff]+[，…])\1+', r'\1…'),     # 快啲啦快啲啦，  -> 快啲啦…
-        (r'([\u4e00-\u9fff]{2,})[，…]\1+', r'\1…'),  # 快啲啦，快啲啦，-> 快啲啦…
-        (r'([\u4e00-\u9fff]{2})\1+', r'\1…'),        # 大佬大佬大佬   -> 大佬…
-        (r'([\u4e00-\u9fff])\1{2,}', r'\1…'),        # 喂喂喂         -> 喂…
-        (r'([\u4e00-\u9fff]啊，)\1{2,}', r'\1…'),    # 停啊，停啊，    -> 停啊…
-        (r'([\u4e00-\u9fff]㗎，)\1{2,}', r'\1…'),    # 靜㗎，靜㗎，    -> 靜㗎…
-        ('，…', '…'),
-        ('…，', '…'),
-        ('……', '…'),
-        (r'((我…|你…|佢…|唔…)){2,}', r'\1'),
-        (r'((，我|，你|，佢)){2,}', r'\1…'),
-        (r'^我，我', '我…我'),
-        (r'^你，你', '你…你'),
-        (r'^佢，佢', '佢…佢'),
-        (r'[嗯唔哦啊]…', ''),
-        (r'喂喂…', '喂…')
+        (r'([\u4e00-\u9fff]{2,})\1+[，…]*', r'\1…'), # 大佬大佬大佬   -> 大佬…
+        (r'([\u4e00-\u9fff])\1{2,}[，…]*', r'\1…'), # 喂喂喂 -> 喂…
+        
+        (r'([\u4e00-\u9fff])([，…]\1){2,}[，…？]*？', r'\1…？'), # 喂，喂，-> 喂…
+        (r'([\u4e00-\u9fff])([，…]\1){2,}[，…]+', r'\1…'), # 喂，喂，-> 喂…
+        (r'([\u4e00-\u9fff])([，…]\1){2,}', r'\1…\1'), # 喂，喂，-> 喂…
+
+        (r'(?<![\u4e00-\u9fff])([\u4e00-\u9fff])[，…](\1[，…$]){1,}', r'\1…'),
+        (r'(?<![\u4e00-\u9fff])([\u4e00-\u9fff]{2,})[，…](\1[，…$]){1,}', r'\1…'), # 快啲啦，快啲啦，-> 快啲啦…
+        (r'(?<![\u4e00-\u9fff])([\u4e00-\u9fff][啊㗎])[，…](\1[，…])*(\1)+[，…]?', r'\1…'), # 停啊，停啊    -> 停啊…
+
+        (r'(?<=[？…，])([我你佢])，\1', r'\1…\1'),
+        (r'^([我你佢])，\1', r'\1…\1')
     ]
+
     text = resub(text, regex_list_noise)
-    text = resub(text, regex_list_punctuation)
     text = resub(text, regex_list_repeated)
     return text
         
@@ -501,8 +496,7 @@ def clean_subtitle_revert_uncommon_conventions(text):
         ('吒嘛', '咋嘛'),
         ('𠺢嘛', '㗎嘛'),
         ('唧', '啫'),
-        ('哎吔', '哎呀'),
-        ('之不過', '只不過')
+        ('哎吔', '哎呀')
         ]
 
     return resub(text, regex_list)
