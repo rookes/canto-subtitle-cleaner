@@ -13,6 +13,7 @@ class TestParseFunctions(unittest.TestCase):
     def test_is_question(self):
         self.assertFalse(is_question("噉你係咪好開心？我都係咁諗！"))
         self.assertTrue(is_question("噉你係咪好開心？"))
+        self.assertFalse(is_question("乜你唔覺得我傻啊？"))
 
     def testLinebreak(self):
         self.assertEqual(clean_subtitle("雖然話大家係親戚,不過,我哋其實只係遠房親戚,而佢哋就負責輪流照顧我。")
@@ -65,15 +66,21 @@ class TestParseFunctions(unittest.TestCase):
         #self.assertEqual(clean_subtitle("同你你佢"), "同你你佢")
         #self.assertEqual(clean_subtitle("同你，你佢"), "同你，你佢")
 
+    def test_乜_questions(self):
+        self.assertEqual(clean_subtitle("乜你唔覺得我傻啊？"), "乜你唔覺得我傻呀？")
+        self.assertEqual(clean_subtitle("乜嘢係代表我傻啊？"), "乜嘢係代表我傻啊？")
+        self.assertEqual(clean_subtitle("乜都得，你係咪覺得我傻啊？"), "乜都得，你係咪覺得我傻啊？")
+
     def test_english_spacing(self):
         self.assertEqual(clean_subtitle("同 埋有陣時學,大家覺得好似係\nall or nothing,"), "同埋有陣時學，大家覺得好似係\nall or nothing")
         self.assertEqual(clean_subtitle("咁你就要走去Adobe\nIllustrator。"), "噉你就要走去Adobe\nIllustrator")
         
     def test_number_retention(self):
-        self.assertEqual(clean_subtitle("呢個字體可以幫你完全,唔可以完全嘅,99.7％嘅時候,揀中呢一個"), "呢個字體可以幫你完全，唔可以完全嘅\n99.7％%嘅時候，揀中呢一個")
+        self.assertEqual(clean_subtitle("呢個字體可以幫你完全,唔可以完全嘅,99.7％嘅時候,揀中呢一個"), "呢個字體可以幫你完全\n唔可以完全嘅，99.7%嘅時候，揀中呢一個")
 
     def test_chinese_numbers(self):
         self.assertEqual(clean_subtitle("一二三四五六七八九十"), "一二三四五六七八九十")
+        self.assertEqual(clean_subtitle("十一月二十三號"), "11月23號")
         self.assertEqual(clean_subtitle("一月二十三號"), "1月23號")
         self.assertEqual(clean_subtitle("你二十三歲？一二三四五六七八九十"), "你23歲？一二三四五六七八九十")
         self.assertEqual(clean_subtitle("一二三四年果陣佢計咗數，「一二三」"), "1234年嗰陣佢計咗數，「一二三」")

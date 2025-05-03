@@ -10,7 +10,9 @@ RE_DELIMITING_PUNCTUATION = re.compile(r'([，？！…。：；]+)')
 RE_QUESTION_PAT = re.compile(r'([\u4e00-\u9fff])唔\1')          
 QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢']
 
-ZH = '[\u4e00-\u9fff]'
+ZH = r'[\u4e00-\u9fff]'
+NUM = r'[\d零一二兩两三四五六七八九十百千]'
+NOT_NUM = r'[^\d零一二兩两三四五六七八九十百千]'
 
 def segments(line):
     """Split a line into segments based on punctuation and standalone characters."""

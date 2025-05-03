@@ -1,7 +1,7 @@
 """Functions for cleaning a single Cantonese subtitle line."""
 import re
 import canto_subtitle_cleaner.parse as parse
-from canto_subtitle_cleaner.parse import ZH
+from canto_subtitle_cleaner.parse import ZH, NOT_NUM
 import canto_subtitle_cleaner.format as format
 
 ######################################## HELPER FUNCTIONS ########################################
@@ -110,7 +110,9 @@ def clean_punctuation(text):
         (r'\?', '？'),
         (r'\.\.\.', '…'),
         ('… ', '…'),
-        (r'[。.]', '，'),
+        (r'(' + NOT_NUM + r')[。.](' + NOT_NUM + r')', r'\1，\2'),
+        (r'[。.]$', ''),
+        (r'^[。.]', ''),
         (r'[!！]', '，'),
         (r',', '，'),
         (r'^，', ''),
@@ -135,6 +137,10 @@ def clean_question_final_particles(text):
             s = s.replace('啫？', '唧？')
         elif has_question_mark:         # has question mark and no question word
             s = s.replace('㗎？','嘎？')
+
+            # 啊 -> 呀 in cases like "乜你覺得唔開心啊？"
+            if s[0] == '乜':
+                s = s.replace('啊？', '呀？')
         else:                           # no question mark and no question word
             s = s.replace('呀','啊')
         
@@ -157,17 +163,18 @@ def clean_question_final_particles(text):
     return text
 
 def clean_subtitle_misc(text):
-    # Add a comma before or after certain words    
-    text = re.sub(r'(?<![？！，])(?<!^)(?<![之])但係(?![，！？])', r'，但係', text, flags=re.MULTILINE)
-    text = re.sub(r'(?<![？！，])(?<!^)(?<![之只])不過(?![，！？])', r'，不過', text, flags=re.MULTILINE)
-    text = re.sub(r'(?<![？！，])(?<!^)雖然(?![，！？])', r'，雖然', text, flags=re.MULTILINE)
-    text = re.sub(r'(?<![？！，哋噉你佢我])(?<!^)首先(?![，！？])', r'，首先', text, flags=re.MULTILINE) #I think this will probably get a fair amount of false positives 
-    text = re.sub(r'(?<![？！，])(?<!^)嘅話(?![，！？])', r'嘅話，', text, flags=re.MULTILINE)
+    regex_list_commas = [
+        (r'(?<![？！，])(?<!^)(?<![之])但係(?![，！？])', r'，但係'),
+        (r'(?<![？！，])(?<!^)(?<![之只])不過(?![，！？])', r'，不過'),
+        (r'(?<![？！，])(?<!^)雖然(?![，！？])', r'，雖然'),
+        (r'(?<![？！，哋噉你佢我])(?<!^)首先(?![，！？])', r'，首先'), #I think this will probably get a fair amount of false positives 
+        (r'(?<![？！，])(?<!^)嘅話(?![，！？])', r'嘅話，')
+    ]
 
     # Misc changes for conventions
     regex_list_misc = [
         (r'咁(?![多耐濟滯細大靚高簡廣厚短瘦長少痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈])', '噉'),
-        (r'噉([\u4e00-\u9fff][\u4e00-\u9fff])嘅', r'咁\1嘅'),
+        (r'噉(' + ZH + ZH + r')嘅', r'咁\1嘅'),
         (r'噉(認真|緊張|困難|容易)', r'咁\1'), # change to 咁 before specific 2-char adjectives
         (r'([冇幾])噉', r'\1咁'),
         (r'(?<![譯原])著(?![述名])', '着'),
@@ -177,7 +184,7 @@ def clean_subtitle_misc(text):
         (r'(?<![曝沖])晒(?=[招馬衫命乾張蓆])', '曬'),
         (r'晒(?=太陽|水艇|雨淋|月光|相舖)', '曬'),
         (r'(?<=[睇諗試求])吓', '下'),
-        ('只不過', '之不過'), #FIX
+        # ('只不過', '之不過'),
         (r'(?<!，)之不過(?!，)', '之不過，'),
         (r'[姐唧啫]係', '即係'),
         ('宜家', '而家'),
@@ -188,11 +195,6 @@ def clean_subtitle_misc(text):
         ('傾計', '傾偈'),
         (r'傾([\u4e00-\u9fff])計', r'傾\1偈')
     ]
-    
-    def fix_common_typos(text):
-        regex_list = [
-        ]
-        return resub(text, regex_list)
     
     # Fix Misc Cantonese errors
     regex_list_cantonese_errors = [
@@ -286,6 +288,7 @@ def clean_subtitle_misc(text):
         (r'訓教', r'瞓覺')
     ]
     
+    text = resub(text, regex_list_commas)
     text = resub(text, regex_list_misc)
     return resub(text, regex_list_cantonese_errors)
 
@@ -295,12 +298,12 @@ def update_particle_conventions(text):
         (r'(?<!衫書十頭招衣帽李咪相棚房高)架(?=[，？…喇啦喎咯囉囖啫])', r'㗎'), # 架 to 㗎 avoiding 架-nouns
         ('閉喇', '弊喇'),
         (r'閉㗎[啦喇]', '弊㗎喇'),
+        (r'添[，…]', '𠻹'),
         (r'添$', '𠻹'),
         (r'添，', '𠻹，'),
         (r'添(?=[噃啵喎啊呀㗎])', '𠻹'),
         (r'好嘛', '好嗎'),
         (r'[啫之姐咋]嘛', '吒嘛'),
-        (r'你唔([^，？]*?)啊', r'等我\1吖'),
         ('㗎嘛？', '㗎咩？'),
         ('㗎嘛', '𠺢嘛'),
         ('唉啊', '哎吔'),
@@ -330,9 +333,9 @@ def update_particle_conventions(text):
         (r'^聽我講啊', '聽我講吖'),
         (r'，聽我講啊', '，聽我講吖'),
         (r'(?<=[^睇諗試求傾])下？', '吓？'),
-        (r'不如([^，？]*?)啊', r'不如\1吖'),
-        (r'幫我([^，？]*?)啊', r'幫我\1吖'),
-        (r'等我([^，？]*?)啊', r'等我\1吖'),        
+        (r'不如([^，…？]*?)啊', r'不如\1吖'),
+        (r'幫我([^，…？]*?)啊', r'幫我\1吖'),
+        (r'等我([^，…？]*?)啊', r'等我\1吖'),        
         ('啊下', '啊吓'),
         ('囉', '囖'),
         ('囖喎', '喇喎'),
@@ -494,10 +497,11 @@ def convert_chinese_numbers_in_text(text):
         '零': 0, '一': 1, '二': 2, '兩': 2, '两': 2, '三': 3, '四': 4,
         '五': 5, '六': 6, '七': 7, '八': 8, '九': 9
     }
-    chinese_units = {'十': 10, '百': 100, '千': 1000}
+    chinese_units = {'十': 10, '百': 100, '千': 1000, '萬': 10000}
     uncertain_words = {'幾', '數', '多', '餘', '約'}
+    named_date_words = {'月', '號'}
 
-    pattern = re.compile(r'[零一二兩两三四五六七八九十百千]+')
+    pattern = re.compile(r'[零一二兩两三四五六七八九十百千萬]+([月號]?)')
 
     def parse_chinese_number(chinese_num):
         if any(word in chinese_num for word in uncertain_words):
@@ -521,7 +525,10 @@ def convert_chinese_numbers_in_text(text):
                 last_was_digit = True
                 if i < length:
                     next_char = chinese_num[i]
-                    if next_char in chinese_units:
+                    if next_char in named_date_words:
+                        num += temp
+                        return str(num)
+                    elif next_char in chinese_units:
                         unit = chinese_units[next_char]
                         num += temp * unit
                         temp = 0
@@ -540,8 +547,8 @@ def convert_chinese_numbers_in_text(text):
                 last_was_digit = False
             else:
                 return None
-
-        if 10 < num < 10000:
+            
+        if 10 < num < 100000:
             return str(num)
         else:
             return None
@@ -550,11 +557,23 @@ def convert_chinese_numbers_in_text(text):
         chinese_num = match.group(0)
         arabic_num = parse_chinese_number(chinese_num)
         if arabic_num is not None:
-            return arabic_num
+            return arabic_num + match.group(1)
         else:
-            return chinese_num
+            return chinese_num + match.group(1)
 
-    return pattern.sub(replacer, text)
+    text = pattern.sub(replacer, text)
+
+    year_pattern = re.compile(r'[零一二三四五六七八九]{2,4}年')
+
+    def year_replacer(match):
+        chinese_num = match.group(0)
+        
+        for old_char, new_char in chinese_digits.items():
+            chinese_num = chinese_num.replace(old_char, str(new_char))
+
+        return chinese_num
+
+    return year_pattern.sub(year_replacer, text)
 
 def trim_subtitle(text):
     text = re.sub(r'^，', '', text, flags=re.MULTILINE)
