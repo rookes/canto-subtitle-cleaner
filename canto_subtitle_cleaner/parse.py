@@ -8,7 +8,7 @@ STANDALONE_START_CHARS = {"噉", "喂", "噢", "嗯", "哦", "嗱", "係", "好"
 RE_DELIMITING_PUNCTUATION = re.compile(r'([，？！…。：；]+)')
 
 RE_QUESTION_PAT = re.compile(r'([\u4e00-\u9fff])唔\1')          
-QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢']
+QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢', '乜鬼']
 
 ZH = '[\u4e00-\u9fff]'
 
