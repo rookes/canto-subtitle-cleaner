@@ -116,11 +116,14 @@ def replace_standard_chinese(text):
 
 def clean_punctuation(text):
     regex_list = [
-        (r'[\n\t]+', ''), # Remove all line breaks and tabs
+        (r'[\n\t]+', ' '), # Replace all line breaks and tabs with a space (to be removed later)
         (r'﹑', '\''), # restore normal apostrophe
         (r'([a-zA-Z])-([a-zA-Z])', r'\1\2'), # remove random hyphens
-        (r'([a-zA-Z])\s*([a-zA-Z])', r'\1\2'), # remove spaces between letters
         (r'(?<![a-zA-Z])\s+(?![a-zA-Z])', ''), # remove spaces when not next to Latin characters
+        (r'(?<=' + ZH + r')\s+', ''), # remove spaces next to Chinese characters
+        (r'\s+(?=' + ZH + r')', ''),
+        (r'\s+', ' '), # reduce all spaces to single space
+        ('％', '%'), # Netflix standard uses half-width percent sign
         (r'\?', '？'),
         (r'\.\.\.', '…'),
         ('… ', '…'),
@@ -569,6 +572,15 @@ def convert_chinese_numbers_in_text(text):
 
     return pattern.sub(replacer, text)
 
+def trim_subtitle(text):
+    text = re.sub(r'^，', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s+', '', text, flags=re.MULTILINE)
+    
+    text = re.sub(r'，$', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\s+$', '', text, flags=re.MULTILINE)
+
+    return text
+
 # Clean up a single text subtitle entry and return it
 def clean_subtitle(text):
     text = clean_punctuation(text)
@@ -585,11 +597,6 @@ def clean_subtitle(text):
     # TODO: more line breaks and formatting
 
     # Remove commas
-    text = re.sub(r'^，', '', text)
-    text = re.sub(r'，$', '', text)
-    text = re.sub(r'，(?=\n)', '', text) 
-
-    # Old functionality was to run this again at the end, no longer needed
-    # text = clean_question_final_particles(text)
+    text = trim_subtitle(text)
 
     return text
