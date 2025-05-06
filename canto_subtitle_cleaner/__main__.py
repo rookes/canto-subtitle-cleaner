@@ -84,7 +84,7 @@ def process_directory(input_directory, output_directory="", output_prefix="", ad
     return
 
 def print_usage():
-    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-od <output_directory>] [-p <output_prefix>] [--add_offset HH:MM:SS]  [--debug]")
+    print(f"usage: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-o <output_directory> | -p <output_prefix>] [--add_offset HH:MM:SS] [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
@@ -100,6 +100,11 @@ def main():
     # Check if there are arguments 
     if len(sys.argv) < 2:
         print(f"Error: No arguments provided. Please add arguments to the command.")
+        print_usage()
+        quit()
+
+    # Enable debug mode if --debug flag is present
+    if "--help" in sys.argv or "-h" in sys.argv or "-?" in sys.argv:
         print_usage()
         quit()
 
@@ -140,18 +145,19 @@ def main():
         return os.path.abspath(path)
     
     # Process -od output directory argument
-    if "-od" in sys.argv:
-        prefix_index = sys.argv.index("-od")
+    if "-o" in sys.argv:
+        prefix_index = sys.argv.index("-o")
         if prefix_index + 1 < len(sys.argv):
             output_directory = validate_path(sys.argv[prefix_index + 1])
         else:
-            print("Error: Missing value for -od argument.")
+            print("Error: Missing value for -o argument. Please add an output directory.")
             print_usage()
             quit()
 
     # -d argument for directory of input SRT files
     if sys.argv[1] == "-d":
         if len(sys.argv) < 3:
+            print("Error: Missing value for -d argument. Please add an input directory.")
             print_usage()
             quit()
         input_directory = validate_path(sys.argv[2])
