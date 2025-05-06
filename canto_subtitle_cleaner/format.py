@@ -53,46 +53,38 @@ def final_step(text):
 
     return text
 
-# TODO: Currently not used, re-implement later
 # Fix subtitles that incorrectly broken across 2 different subtitles
-def adjust_subtitle_breaks(output_file):
-    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦"}
+def adjust_subtitle_breaks(subtitle_list):
+    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦", "好"}
+    prev_text = None
 
-    def parse_timestamp(ts):
-        return datetime.strptime(ts, "%H:%M:%S,%f")
+    for i, (timecode, text) in enumerate(subtitle_list):
+        if prev_text and text:
+            if re.match(r'[？…，]', prev_text[-1]):
+                prev_text = text
+                prev_timecode = timecode
+                continue
 
-    def ms_diff(t1, t2):
-        return (t2 - t1).total_seconds() * 1000
-
-    with open(output_file, 'r', encoding='utf-8') as f:
-        subtitles = f.read().strip().split('\n\n')
-
-    processed_subs = []
-    for i in range(len(subtitles)):
-        block = subtitles[i].split('\n')
-        if len(block) < 3:
-            processed_subs.append('\n'.join(block))
-            continue
-
-        index, timestamp, *text = block
-        if i > 0 and text:
-            prev_block = processed_subs[-1].split('\n')
-            prev_index, prev_timestamp, *prev_text = prev_block
-            current_first_line = text[0]
-
-            match = re.match(r'^([^\x00-\x7F])，', current_first_line)
+            match = re.match(r'^([^\x00-\x7F])[，…？]', text)
+            
             if match:
                 char = match.group(1)
-                prev_end = parse_timestamp(prev_timestamp.split(' --> ')[1])
-                curr_start = parse_timestamp(timestamp.split(' --> ')[0])
-                delta_ms = ms_diff(prev_end, curr_start)
+                delta_ms = timecode - prev_timecode
 
-                if delta_ms < 801 and char not in OMIT_CHARS:
-                    prev_block[-1] += char
-                    text[0] = text[0][len(char) + 1:]
-                    processed_subs[-1] = '\n'.join([prev_index, prev_timestamp] + prev_block[2:])
+                if delta_ms < 300 and char not in OMIT_CHARS:
+                    subtitle_list[i - 1] = (prev_timecode, prev_text + char)
+                    
+                    print(f"============ Subtitle break: Pulling back char {char} from line {i}. ============")
+                    print(f"End of previous line at {prev_timecode.end}; start of current at {timecode.start}; delta {int(delta_ms)}ms")
+                    print(f"({repr(prev_text)} {repr(text)}) -> ({repr(prev_text + char)} {repr(text[len(char) + 1:])})")
+                    print("============================================================================")
+                    
+                    text = text[len(char) + 1:]
 
-        processed_subs.append('\n'.join([index, timestamp] + text))
+                    
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write('\n\n'.join(processed_subs))
+        prev_text = text
+        prev_timecode = timecode
+
+    return subtitle_list
+        

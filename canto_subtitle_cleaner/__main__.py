@@ -9,7 +9,7 @@ from canto_subtitle_cleaner.clean import clean_subtitle
 from canto_subtitle_cleaner.format import adjust_subtitle_breaks
 
 PACKAGE_NAME = 'canto_subtitle_cleaner'
-DEBUG_MODE = True  # Set to True for debugging output
+DEBUG_MODE = False  # Set to True for debugging output
 OUTPUT_PREFIX = "output_"  # Default prefix added to the output filename
 ADD_OFFSET = None
 
@@ -24,12 +24,6 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
         original_time_start = timecode.start
         block_cleaned_text = clean_subtitle(text).strip()
 
-        if add_offset:
-            timecode.add_offset(add_offset)
-
-        if add_duration:
-            timecode.add_duration(add_duration)
-
         if DEBUG_MODE:
             print(f"  {original_time_start}: \t{text.replace("\n", "\\n")} \n→ {timecode.start}: \t{block_cleaned_text.replace("\n", "\\n")}")
 
@@ -40,6 +34,15 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
         # new_subtitle_list.append((timecode, '\n'.join([block_cleaned_text])))
         new_subtitle_list.append((timecode, block_cleaned_text))
 
+    adjust_subtitle_breaks(new_subtitle_list)
+
+    for timecode, text in subtitle_list:
+        if add_offset:
+            timecode.add_offset(add_offset)
+
+        if add_duration:
+            timecode.add_duration(add_duration)
+            
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
@@ -55,7 +58,7 @@ def process_file(input_file, output_directory="", output_prefix="", add_offset=N
 
         with_offset_str = ""
         if add_offset:
-            with_offset_str = f" with offset {add_offset}"
+            with_offset_str = f" with offset {add_offset.time()}"
 
         print(f"Cleaned subtitles from the list{with_offset_str}. Outputting to file...")
 

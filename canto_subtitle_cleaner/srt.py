@@ -32,18 +32,16 @@ class timecode:
     def end(self):
         return self.end_time.strftime(timecode.TIMECODE_FORMAT)[:-3]
 
-    def diff(self, other):
+    def __sub__(self, other):
         """Returns the difference between two timecodes in milliseconds."""
-        if not isinstance(other, timecode):
-            raise TypeError("Can only compare with another timecode instance")
-        
-        if self.start_time >= other.end_time or self.end_time <= other.start_time:
+        if (self.start_time <= other.end_time and self.start_time >= other.start_time) \
+            or (self.end_time >= other.start_time and self.end_time <= other.end_time):
             return 0    # Overlapping timecodes
         
         if self.start_time < other.start_time:
             return (other.start_time - self.end_time).total_seconds() * 1000
         else:
-            return (self.end_time - other.start_time).total_seconds() * 1000
+            return (self.start_time - other.end_time).total_seconds() * 1000
     
     def duration(self):
         """Returns the duration of the timecode in milliseconds."""
