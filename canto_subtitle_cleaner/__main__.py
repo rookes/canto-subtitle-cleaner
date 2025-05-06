@@ -40,10 +40,10 @@ def clean_subtitle_list(subtitle_list, add_offset=None):
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
-def process_file(input_file, output_prefix="", add_offset=None):
+def process_file(input_file, output_directory="", output_prefix="", add_offset=None):
     try:
         # Derive the output file name
-        output_file = f"{output_prefix}{os.path.basename(input_file)}"
+        output_file = f"{output_directory}\\{output_prefix}{os.path.basename(input_file)}"
         
         subtitle_list = srt_to_list(input_file)
         print("Got the input file srt list. Cleaning...")
@@ -64,7 +64,7 @@ def process_file(input_file, output_prefix="", add_offset=None):
         quit()
 
 # Run process_file on all the SRT files in a directory
-def process_directory(input_directory, output_prefix="", add_offset=None):
+def process_directory(input_directory, output_directory="", output_prefix="", add_offset=None):
     try:
         # List all .srt files in the directory
         srt_files = [f for f in os.listdir(input_directory) if f.endswith('.srt')]
@@ -76,7 +76,7 @@ def process_directory(input_directory, output_prefix="", add_offset=None):
         # Process each file
         for srt_file in srt_files:
             full_path = os.path.join(input_directory, srt_file)
-            process_file(full_path, output_prefix, add_offset)
+            process_file(full_path, output_directory, output_prefix, add_offset)
 
     except Exception as e:
         print(f"An error occurred while processing the directory: {e}")
@@ -84,7 +84,7 @@ def process_directory(input_directory, output_prefix="", add_offset=None):
     return
 
 def print_usage():
-    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-p <output_prefix>] [--add_offset HH:MM:SS]  [--debug]")
+    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-od <output_directory>] [-p <output_prefix>] [--add_offset HH:MM:SS]  [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
@@ -95,6 +95,7 @@ def quit():
 
 def main():
     global DEBUG_MODE, OUTPUT_PREFIX
+    output_directory = ""
 
     # Check if there are arguments 
     if len(sys.argv) < 2:
@@ -137,6 +138,16 @@ def main():
             print(f"Error: The path '{path}' does not exist.")
             quit()
         return os.path.abspath(path)
+    
+    # Process -od output directory argument
+    if "-od" in sys.argv:
+        prefix_index = sys.argv.index("-od")
+        if prefix_index + 1 < len(sys.argv):
+            output_directory = validate_path(sys.argv[prefix_index + 1])
+        else:
+            print("Error: Missing value for -od argument.")
+            print_usage()
+            quit()
 
     # -d argument for directory of input SRT files
     if sys.argv[1] == "-d":
@@ -144,10 +155,10 @@ def main():
             print_usage()
             quit()
         input_directory = validate_path(sys.argv[2])
-        process_directory(input_directory, OUTPUT_PREFIX, ADD_OFFSET)
+        process_directory(input_directory, output_directory, OUTPUT_PREFIX, ADD_OFFSET)
     else:
         input_file = validate_path(sys.argv[1])
-        process_file(input_file, OUTPUT_PREFIX, ADD_OFFSET)
+        process_file(input_file, output_directory, OUTPUT_PREFIX, ADD_OFFSET)
 
 if __name__ == "__main__":
     main()
