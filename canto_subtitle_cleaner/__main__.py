@@ -14,7 +14,7 @@ OUTPUT_PREFIX = "output_"  # Default prefix added to the output filename
 ADD_OFFSET = None
 
 # Take a list of (timecode, subtitle text), clean up all the text, and return it
-def clean_subtitle_list(subtitle_list, add_offset=None):
+def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
     new_subtitle_list = []
 
     for timecode, text in subtitle_list:
@@ -26,6 +26,9 @@ def clean_subtitle_list(subtitle_list, add_offset=None):
 
         if add_offset:
             timecode.add_offset(add_offset)
+
+        if add_duration:
+            timecode.add_duration(add_duration)
 
         if DEBUG_MODE:
             print(f"  {original_time_start}: \t{text.replace("\n", "\\n")} \n→ {timecode.start}: \t{block_cleaned_text.replace("\n", "\\n")}")
@@ -40,7 +43,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None):
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
-def process_file(input_file, output_directory="", output_prefix="", add_offset=None):
+def process_file(input_file, output_directory="", output_prefix="", add_offset=None, add_duration=None):
     try:
         # Derive the output file name
         output_file = f"{output_directory}\\{output_prefix}{os.path.basename(input_file)}"
@@ -48,7 +51,8 @@ def process_file(input_file, output_directory="", output_prefix="", add_offset=N
         subtitle_list = srt_to_list(input_file)
         print("Got the input file srt list. Cleaning...")
 
-        subtitle_list = clean_subtitle_list(subtitle_list, add_offset)
+        subtitle_list = clean_subtitle_list(subtitle_list, add_offset, add_duration)
+
         with_offset_str = ""
         if add_offset:
             with_offset_str = f" with offset {add_offset}"
@@ -64,7 +68,7 @@ def process_file(input_file, output_directory="", output_prefix="", add_offset=N
         quit()
 
 # Run process_file on all the SRT files in a directory
-def process_directory(input_directory, output_directory="", output_prefix="", add_offset=None):
+def process_directory(input_directory, output_directory="", output_prefix="", add_offset=None, add_duration=None):
     try:
         # List all .srt files in the directory
         srt_files = [f for f in os.listdir(input_directory) if f.endswith('.srt')]
@@ -76,7 +80,7 @@ def process_directory(input_directory, output_directory="", output_prefix="", ad
         # Process each file
         for srt_file in srt_files:
             full_path = os.path.join(input_directory, srt_file)
-            process_file(full_path, output_directory, output_prefix, add_offset)
+            process_file(full_path, output_directory, output_prefix, add_offset, add_duration)
 
     except Exception as e:
         print(f"An error occurred while processing the directory: {e}")
@@ -96,6 +100,8 @@ def quit():
 def main():
     global DEBUG_MODE, OUTPUT_PREFIX
     output_directory = ""
+    add_offset = None
+    add_duration = None
 
     # Check if there are arguments 
     if len(sys.argv) < 2:
@@ -127,13 +133,28 @@ def main():
         prefix_index = sys.argv.index("--add_offset")
         if prefix_index + 1 < len(sys.argv):
             try:
-                ADD_OFFSET = datetime.strptime(sys.argv[prefix_index + 1], "%H:%M:%S,%f")
+                add_offset = datetime.strptime(sys.argv[prefix_index + 1], "%H:%M:%S,%f")
             except ValueError:
                 print("Error: Invalid time format for --add_offset. Use HH:MM:SS,ms.")
                 print_usage()
                 quit()
         else:
             print("Error: Missing value for --add_offset argument.")
+            print_usage()
+            quit()
+
+    # --add_duration
+    if "--add_duration" in sys.argv:
+        prefix_index = sys.argv.index("--add_duration")
+        if prefix_index + 1 < len(sys.argv):
+            try:
+                add_duration = datetime.strptime(sys.argv[prefix_index + 1], "%H:%M:%S,%f")
+            except ValueError:
+                print("Error: Invalid time format for --add_duration. Use HH:MM:SS,ms.")
+                print_usage()
+                quit()
+        else:
+            print("Error: Missing value for --add_duration argument.")
             print_usage()
             quit()
 
@@ -161,10 +182,10 @@ def main():
             print_usage()
             quit()
         input_directory = validate_path(sys.argv[2])
-        process_directory(input_directory, output_directory, OUTPUT_PREFIX, ADD_OFFSET)
+        process_directory(input_directory, output_directory, OUTPUT_PREFIX, add_offset, add_duration)
     else:
         input_file = validate_path(sys.argv[1])
-        process_file(input_file, output_directory, OUTPUT_PREFIX, ADD_OFFSET)
+        process_file(input_file, output_directory, OUTPUT_PREFIX, add_offset, add_duration)
 
 if __name__ == "__main__":
     main()

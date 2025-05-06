@@ -61,7 +61,18 @@ class timecode:
                 raise ValueError(f"Invalid offset format: {offset}")
             self.start_time = (offset - self.TIME_ZERO + self.start_time)
             self.end_time = (offset - self.TIME_ZERO + self.end_time)
-        
+
+    def add_duration(self, duration):
+        """Adds an offset to the end of the timecode."""
+        if isinstance(duration, datetime) or isinstance(duration, timecode):
+            self.end_time = (duration - self.TIME_ZERO + self.end_time)
+        else:
+            try:
+                duration = datetime.strptime(str(duration), timecode.TIMECODE_FORMAT)
+            except ValueError:
+                raise ValueError(f"Invalid offset format: {duration}")
+            self.end_time = (duration - self.TIME_ZERO + self.end_time)
+
 # Takes an .srt file and returns an iterable list of (timecode, raw subtitle text)
 def srt_to_list(input_path):
     with open(input_path, 'r', encoding='utf-8') as f:
@@ -84,10 +95,26 @@ def srt_to_list(input_path):
     
     return subtitle_list
 
+def clean_timecodes(subtitle_list):
+    previous_timecode = None
+    delta = datetime.strptime('00:00:00,001', '%H:%M:%S,%f') - datetime.strptime('00:00:00', '%H:%M:%S')
+
+    for timecode, text in subtitle_list:
+        if previous_timecode:
+            if previous_timecode.end > timecode.start:
+                previous_timecode.end_time = timecode.start_time - delta
+
+        previous_timecode = timecode
+    
+    return subtitle_list
+
+
 # Takes an iterable list of (timecode, subtitle text) and writes it to a file in .srt format
 def list_to_srt(subtitle_list, output_path):
     blocks = []
     i = 1
+
+    clean_timecodes(subtitle_list)
 
     for timecode, text in subtitle_list:
         blocks.append(f'{i}\n{timecode}\n{text}')
