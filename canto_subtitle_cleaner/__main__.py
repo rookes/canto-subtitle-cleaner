@@ -28,7 +28,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None):
             timecode.add_offset(add_offset)
 
         if DEBUG_MODE:
-            print(f"  {original_time_start}: \t{text} \n→ {timecode.start}: \t{block_cleaned_text}")
+            print(f"  {original_time_start}: \t{text.replace("\n", "\\n")} \n→ {timecode.start}: \t{block_cleaned_text.replace("\n", "\\n")}")
 
         # Skip block if cleaned text is empty
         if not block_cleaned_text:
