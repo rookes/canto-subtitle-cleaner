@@ -1,15 +1,13 @@
 """Helper functions for reading and writing .srt files."""
 
 import re
-from datetime import datetime
+from datetime import datetime, time as dt_time
 
 class timecode:
     """A class to represent an SRT timecode."""
     TIMECODE_FORMAT = "%H:%M:%S,%f"
+    TIME_ZERO = datetime.strptime('00:00:00', '%H:%M:%S')
     
-    start_time = None
-    end_time = None
-
     def __init__(self, text):
         """Initialize the timecode from a string in the format 'HH:MM:SS,ms --> HH:MM:SS,ms'."""
         text = text.split(' --> ')
@@ -23,9 +21,17 @@ class timecode:
             raise ValueError(f"Start time must be less than end time: {text}")
     
     def __str__(self):
-        return ' --> '.join([self.start_time.strftime(timecode.TIMECODE_FORMAT),
-                             self.end_time.strftime(timecode.TIMECODE_FORMAT)])
+        return ' --> '.join([self.start_time.strftime(timecode.TIMECODE_FORMAT)[:-3],
+                             self.end_time.strftime(timecode.TIMECODE_FORMAT)[:-3]])
     
+    @property
+    def start(self):
+        return self.start_time.strftime(timecode.TIMECODE_FORMAT)[:-3]
+    
+    @property
+    def end(self):
+        return self.end_time.strftime(timecode.TIMECODE_FORMAT)[:-3]
+
     def diff(self, other):
         """Returns the difference between two timecodes in milliseconds."""
         if not isinstance(other, timecode):
@@ -42,7 +48,20 @@ class timecode:
     def duration(self):
         """Returns the duration of the timecode in milliseconds."""
         return (self.end_time - self.start_time).total_seconds() * 1000
-
+    
+    def add_offset(self, offset):
+        """Adds an offset to the timecode."""
+        if isinstance(offset, datetime) or isinstance(offset, timecode):
+            self.start_time = (offset - self.TIME_ZERO + self.start_time)
+            self.end_time = (offset - self.TIME_ZERO + self.end_time)
+        else:
+            try:
+                offset = datetime.strptime(str(offset), timecode.TIMECODE_FORMAT)
+            except ValueError:
+                raise ValueError(f"Invalid offset format: {offset}")
+            self.start_time = (offset - self.TIME_ZERO + self.start_time)
+            self.end_time = (offset - self.TIME_ZERO + self.end_time)
+        
 # Takes an .srt file and returns an iterable list of (timecode, raw subtitle text)
 def srt_to_list(input_path):
     with open(input_path, 'r', encoding='utf-8') as f:
@@ -56,7 +75,7 @@ def srt_to_list(input_path):
         lines = block.splitlines()
         if len(lines) >= 3:
             # Ignore header index, we will renumber anyway
-            block_timecode = lines[1]
+            block_timecode = timecode(lines[1])
             block_text = '\n'.join(lines[2:])
             subtitle_list.append((block_timecode, block_text))
         else:

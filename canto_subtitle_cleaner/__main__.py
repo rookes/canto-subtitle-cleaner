@@ -3,35 +3,44 @@
 import sys
 import os
 import traceback
-from canto_subtitle_cleaner.srt import srt_to_list, list_to_srt
+from datetime import datetime
+from canto_subtitle_cleaner.srt import srt_to_list, list_to_srt, timecode as srt_timecode
 from canto_subtitle_cleaner.clean import clean_subtitle
 from canto_subtitle_cleaner.format import adjust_subtitle_breaks
 
 PACKAGE_NAME = 'canto_subtitle_cleaner'
 DEBUG_MODE = True  # Set to True for debugging output
 OUTPUT_PREFIX = "output_"  # Default prefix added to the output filename
+ADD_OFFSET = None
 
 # Take a list of (timecode, subtitle text), clean up all the text, and return it
-def clean_subtitle_list(subtitle_list):
+def clean_subtitle_list(subtitle_list, add_offset=None):
     new_subtitle_list = []
 
     for timecode, text in subtitle_list:
+        if not isinstance(timecode, srt_timecode):
+            raise TypeError("Expected timecode to be of type srt.timecode")
+
+        original_time_start = timecode.start
         block_cleaned_text = clean_subtitle(text).strip()
-        
+
+        if add_offset:
+            timecode.add_offset(add_offset)
+
         if DEBUG_MODE:
-            print(f"Timecode: {timecode} converted text: {text} → {block_cleaned_text}")
+            print(f"  {original_time_start}: \t{text} \n→ {timecode.start}: \t{block_cleaned_text}")
 
         # Skip block if cleaned text is empty
         if not block_cleaned_text:
             continue
-        
+                                
         # new_subtitle_list.append((timecode, '\n'.join([block_cleaned_text])))
         new_subtitle_list.append((timecode, block_cleaned_text))
 
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
-def process_file(input_file, output_prefix):
+def process_file(input_file, output_prefix="", add_offset=None):
     try:
         # Derive the output file name
         output_file = f"{output_prefix}{os.path.basename(input_file)}"
@@ -39,8 +48,12 @@ def process_file(input_file, output_prefix):
         subtitle_list = srt_to_list(input_file)
         print("Got the input file srt list. Cleaning...")
 
-        subtitle_list = clean_subtitle_list(subtitle_list)
-        print("Cleaned subtitles from the list. Outputting to file...")
+        subtitle_list = clean_subtitle_list(subtitle_list, add_offset)
+        with_offset_str = ""
+        if add_offset:
+            with_offset_str = f" with offset {add_offset}"
+
+        print(f"Cleaned subtitles from the list{with_offset_str}. Outputting to file...")
 
         list_to_srt(subtitle_list, output_file)
         print(f"File complete. Processed SRT saved to {output_file}.")
@@ -51,7 +64,7 @@ def process_file(input_file, output_prefix):
         quit()
 
 # Run process_file on all the SRT files in a directory
-def process_directory(input_directory, output_prefix):
+def process_directory(input_directory, output_prefix="", add_offset=None):
     try:
         # List all .srt files in the directory
         srt_files = [f for f in os.listdir(input_directory) if f.endswith('.srt')]
@@ -63,7 +76,7 @@ def process_directory(input_directory, output_prefix):
         # Process each file
         for srt_file in srt_files:
             full_path = os.path.join(input_directory, srt_file)
-            process_file(full_path, output_prefix)
+            process_file(full_path, output_prefix, add_offset)
 
     except Exception as e:
         print(f"An error occurred while processing the directory: {e}")
@@ -71,7 +84,7 @@ def process_directory(input_directory, output_prefix):
     return
 
 def print_usage():
-    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-p <output_prefix>] [--debug]")
+    print(f"USAGE: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-p <output_prefix>] [--add_offset HH:MM:SS]  [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
@@ -103,6 +116,21 @@ def main():
             print_usage()
             quit()
 
+    # --add_offset
+    if "--add_offset" in sys.argv:
+        prefix_index = sys.argv.index("--add_offset")
+        if prefix_index + 1 < len(sys.argv):
+            try:
+                ADD_OFFSET = datetime.strptime(sys.argv[prefix_index + 1], "%H:%M:%S,%f")
+            except ValueError:
+                print("Error: Invalid time format for --add_offset. Use HH:MM:SS,ms.")
+                print_usage()
+                quit()
+        else:
+            print("Error: Missing value for --add_offset argument.")
+            print_usage()
+            quit()
+
     # Sanitize and validate input paths
     def validate_path(path):
         if not os.path.exists(path):
@@ -116,10 +144,10 @@ def main():
             print_usage()
             quit()
         input_directory = validate_path(sys.argv[2])
-        process_directory(input_directory, OUTPUT_PREFIX)
+        process_directory(input_directory, OUTPUT_PREFIX, ADD_OFFSET)
     else:
         input_file = validate_path(sys.argv[1])
-        process_file(input_file, OUTPUT_PREFIX)
+        process_file(input_file, OUTPUT_PREFIX, ADD_OFFSET)
 
 if __name__ == "__main__":
     main()
