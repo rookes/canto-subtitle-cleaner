@@ -200,6 +200,7 @@ def clean_subtitle_misc(text):
     # Misc changes for conventions
     regex_list_misc = [
         (r'咁(?![多耐濟滯細大靚高簡廣厚短瘦長少痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈悶])', '噉'),
+        (r'(?<![\u4e00-\u9fff])咁(?=[多耐濟滯細大靚高簡廣厚短瘦長少痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈悶]啲)', '噉，'),
         (r'噉(' + ZH + ZH + r')嘅', r'咁\1嘅'),
         (r'噉(認真|緊張|困難|容易)', r'咁\1'), # change to 咁 before specific 2-char adjectives
         (r'([冇幾])噉', r'\1咁'),
