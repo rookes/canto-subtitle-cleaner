@@ -25,7 +25,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
         block_cleaned_text = clean_subtitle(text).strip()
 
         if DEBUG_MODE:
-            print(f"  {original_time_start}: \t{text.replace("\n", "\\n")} \n→ {timecode.start}: \t{block_cleaned_text.replace("\n", "\\n")}")
+            print(f"  {original_time_start}: \t{text.replace('\n', '\\n')} \n→ {timecode.start}: \t{block_cleaned_text.replace('\n', '\\n')}")
 
         # Skip block if cleaned text is empty
         if not block_cleaned_text:
@@ -42,7 +42,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
 
         if add_duration:
             timecode.add_duration(add_duration)
-            
+
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
