@@ -55,7 +55,7 @@ def final_step(text):
 
 # Fix subtitles that incorrectly broken across 2 different subtitles
 def adjust_subtitle_breaks(subtitle_list):
-    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦", "好"}
+    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦", "好", "吓", "哼", "嘩", "係"}
     prev_text = None
 
     for i, (timecode, text) in enumerate(subtitle_list):
