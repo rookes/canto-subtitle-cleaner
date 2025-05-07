@@ -1,6 +1,7 @@
 """Helper functions for reading and writing .srt files."""
 
 import re
+import warnings
 from datetime import datetime, time as dt_time
 
 class timecode:
@@ -84,7 +85,12 @@ def srt_to_list(input_path):
         lines = block.splitlines()
         if len(lines) >= 3:
             # Ignore header index, we will renumber anyway
-            block_timecode = timecode(lines[1])
+            try:
+                block_timecode = timecode(lines[1])
+            except ValueError:
+                warnings.warn(f"Warning: timecode is malformed {lines[1]}. Removing subtitle entry.")
+                continue
+            
             block_text = '\n'.join(lines[2:])
             subtitle_list.append((block_timecode, block_text))
         else:

@@ -54,7 +54,12 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
 def process_file(input_file, output_directory="", output_prefix="", add_offset=None, add_duration=None):
     try:
         # Derive the output file name
-        output_file = f"{output_directory}\\{output_prefix}{os.path.basename(input_file)}"
+        output_file = None
+
+        if output_directory:
+            output_file = f"{output_directory}\\{output_prefix}{os.path.basename(input_file)}"
+        else:
+            output_file = f"{output_prefix}{os.path.basename(input_file)}"
         
         subtitle_list = srt_to_list(input_file)
         print("Got the input file srt list. Cleaning...")
