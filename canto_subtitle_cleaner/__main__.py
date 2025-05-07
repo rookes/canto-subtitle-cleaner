@@ -25,7 +25,12 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
         block_cleaned_text = clean_subtitle(text).strip()
 
         if DEBUG_MODE:
-            print(f"  {original_time_start}: \t{text.replace('\n', '\\n')} \n→ {timecode.start}: \t{block_cleaned_text.replace('\n', '\\n')}")
+            nl = "\n"
+            t = "\t"
+            replaced_text = text.replace('\n', '\\n')
+            replaced_block_text = block_cleaned_text.replace('\n', '\\n')
+
+            print(f"  {original_time_start}: {t}{replaced_text} {nl}→ {timecode.start}: {t}{replaced_block_text}")
 
         # Skip block if cleaned text is empty
         if not block_cleaned_text:
