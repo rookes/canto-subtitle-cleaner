@@ -89,5 +89,10 @@ class TestParseFunctions(unittest.TestCase):
     def test_㗎咩(self):
         self.assertEqual(clean_subtitle("你覺得我難睇㗎嘛？"), "你覺得我難睇㗎咩？")
 
+    def test_interjections(self):
+        self.assertEqual(clean_subtitle("吓？？"), "")
+        self.assertEqual(clean_subtitle("吼"), "")
+        self.assertEqual(clean_subtitle("吓吼"), "吓吼")
+
 if __name__ == "__main__":
     unittest.main()

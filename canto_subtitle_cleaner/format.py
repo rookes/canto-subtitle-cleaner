@@ -66,11 +66,20 @@ def adjust_subtitle_breaks(subtitle_list):
                 prev_timecode = timecode
                 continue
 
-            match = re.match(r'^([^\x00-\x7F])[，]?([？]?)', text)
+            match = re.match(r'^([^\x00-\x7F])[，]|^([^\x00-\x7F])[？]', text)
             
             if match:
-                char = match.group(1)
-                question_mark = match.group(2)
+                if match.group(1):
+                    char = match.group(1)
+                    question_mark = ""
+
+                if match.group(2):
+                    char = match.group(2)
+                    question_mark = "？"
+                
+                if not char:
+                    raise ValueError("Error: beginning of line was matched, but no matching character was set.")
+
                 delta_ms = timecode - prev_timecode
 
                 if delta_ms < 801 and char not in OMIT_CHARS:

@@ -457,14 +457,13 @@ def update_particle_conventions(text):
 def clean_interjections(text):
     # Delete certain noise/grunts
     regex_list_noise = [
-        (r'[嘘吼]，', ''),
+        ('嘘，', ''),
         ('天啊，', ''),
         ('，啊，', '，'),
         (r'^[喇啊]，', ''),
         (r'[嘩嚿]啊', ''),
         (r'^嘩$', ''),
-        (r'^吓$', ''),
-        (r'^吓？$', ''),
+        (r'^[吓吼][，…？]?$', ''),
         ('唉，', ''),
         ('哎，', ''),
         (r'哈$', ''),
