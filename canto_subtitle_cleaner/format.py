@@ -55,36 +55,36 @@ def final_step(text):
 
 # Fix subtitles that incorrectly broken across 2 different subtitles
 def adjust_subtitle_breaks(subtitle_list):
-    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦", "好", "吓", "哼", "嘩", "係"}
+    OMIT_CHARS = {"噉", "喂", "噢", "嗯", "哦", "好", "吓", "哼", "嘩", "係", "吼"}
     prev_text = None
 
     for i, (timecode, text) in enumerate(subtitle_list):
         if prev_text and text:
+            # If final character of previous is punctuation, skip
             if re.match(r'[？…，]', prev_text[-1]):
                 prev_text = text
                 prev_timecode = timecode
                 continue
 
-            match = re.match(r'^([^\x00-\x7F])[，…？]', text)
+            match = re.match(r'^([^\x00-\x7F])[，]?([？]?)', text)
             
             if match:
                 char = match.group(1)
+                question_mark = match.group(2)
                 delta_ms = timecode - prev_timecode
 
-                if delta_ms < 300 and char not in OMIT_CHARS:
-                    subtitle_list[i - 1] = (prev_timecode, prev_text + char)
+                if delta_ms < 801 and char not in OMIT_CHARS:
+                    subtitle_list[i - 1] = (prev_timecode, prev_text + char + question_mark)
                     
                     print(f"============ Subtitle break: Pulling back char {char} from line {i}. ============")
                     print(f"End of previous line at {prev_timecode.end}; start of current at {timecode.start}; delta {int(delta_ms)}ms")
-                    print(f"({repr(prev_text)} {repr(text)}) -> ({repr(prev_text + char)} {repr(text[len(char) + 1:])})")
+                    print(f"({repr(prev_text)} {repr(text)}) -> ({repr(prev_text + char + question_mark)} {repr(text[len(char + question_mark) + 1:])})")
                     print("============================================================================")
                     
-                    text = text[len(char) + 1:]
-
-                    
+                    text = text[len(char + question_mark) + 1:]
+                    subtitle_list[i] = (timecode, text)
 
         prev_text = text
         prev_timecode = timecode
 
     return subtitle_list
-        
