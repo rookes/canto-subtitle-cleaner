@@ -118,7 +118,10 @@ def replace_standard_chinese(text):
         ('好累', '好攰'),
         (r'^難道', '唔通'),
         ('好久冇見', '好耐冇見'),
-        (r'^沿着', '沿住')
+        (r'^沿着', '沿住'),
+        (r'[好少咁噉常極太幾](累)', r'\1攰'),
+        (r'([每][一]?)天', r'\1日'),
+        ('唔好亂動', '唔好亂郁')
     ]
     return resub(text, regex_list)
 
@@ -167,7 +170,8 @@ def clean_question_final_particles(text):
             if s[0] == '乜':
                 s = s.replace('啊？', '呀？')
         else:                           # no question mark and no question word
-            s = s.replace('呀','啊')
+            s = s.replace('呀', '啊')
+            s = s.replace('嘎', '㗎')
         
         return s
 
@@ -314,7 +318,9 @@ def clean_subtitle_misc(text):
         (r'吓係([喇啦])', r'哦，係\1'),
         (r'訓教', r'瞓覺'),
         (r'沖([過咗完])糧',r'沖\1涼')
-
+        (r'([冇有啲])野', r'\1嘢'),
+        ('極氣', '激氣'),
+        ('東姑', '冬菇')
     ]
     
     text = resub(text, regex_list_commas)
@@ -454,7 +460,8 @@ def update_particle_conventions(text):
         ('無啦啦，', '無啦啦'),
         (r'[巴吧][喇啦]，', '罷啦，'),
         (r'咩啊[，]?話？', '咩話？'),
-        (r'係邊([度]?)啊？', r'喺邊\1啊？')
+        (r'係邊([度]?)啊？', r'喺邊\1啊？'),
+        ('就得啦', '就得喇')
     ]
     return resub(text, regex_list_particles)
 
