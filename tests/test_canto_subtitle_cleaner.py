@@ -13,6 +13,8 @@ class TestParseFunctions(unittest.TestCase):
     def test_is_question(self):
         self.assertFalse(is_question("噉你係咪好開心？我都係咁諗！"))
         self.assertTrue(is_question("噉你係咪好開心？"))
+        self.assertTrue(is_question("唔使，但我可唔可以跟埋嚟呀？"))
+        self.assertTrue(is_question("我會唔會再見到佢嘎？"))
         self.assertFalse(is_question("乜你唔覺得我傻啊？"))
 
     def testLinebreak(self):

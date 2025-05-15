@@ -7,8 +7,8 @@ STANDALONE_START_CHARS = {"噉", "喂", "噢", "嗯", "哦", "嗱", "係", "好"
 # Punctuation characters that break lines into independent segments
 RE_DELIMITING_PUNCTUATION = re.compile(r'([，？！…。：；]+)')
 
-RE_QUESTION_PAT = re.compile(r'([\u4e00-\u9fff])唔\1')          
-QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢']
+RE_QUESTION_PAT = r'([\u4e00-\u9fff])唔\1'        
+QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢', '嗎']
 
 ZH = r'[\u4e00-\u9fff]'
 NUM = r'[\d零一二兩两三四五六七八九十百千]'
@@ -24,7 +24,7 @@ def segments(line):
 def is_question(segment):
     """Check if a line segment has a question format, regardless of any final particles."""
     if segment[-1] == '？':
-        if re.match(RE_QUESTION_PAT, segment) or  any(word in segment for word in QUESTION_WORDS):
+        if re.search(RE_QUESTION_PAT, segment) or any(word in segment for word in QUESTION_WORDS):
             return True 
     
     return False

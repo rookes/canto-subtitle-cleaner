@@ -121,7 +121,9 @@ def replace_standard_chinese(text):
         (r'^沿着', '沿住'),
         (r'[好少咁噉常極太幾](累)', r'\1攰'),
         (r'([每][一]?)天', r'\1日'),
-        ('唔好亂動', '唔好亂郁')
+        ('唔好亂動', '唔好亂郁'),
+        ('出來', '出嚟')
+
     ]
     return resub(text, regex_list)
 
@@ -162,6 +164,7 @@ def clean_question_final_particles(text):
         
         if parse.is_question(s):        # has question mark and question word
             s = s.replace('呀', '啊')
+            s = s.replace('嘎', '㗎')
             s = s.replace('啫？', '唧？')
         elif has_question_mark:         # has question mark and no question word
             s = s.replace('㗎？','嘎？')
@@ -318,7 +321,7 @@ def clean_subtitle_misc(text):
         (r'吓係([喇啦])', r'哦，係\1'),
         (r'訓教', r'瞓覺'),
         (r'沖([過咗完])糧',r'沖\1涼'),
-        (r'([冇有啲])野', r'\1嘢'),
+        #(r'([冇有啲])野', r'\1嘢'),
         ('極氣', '激氣'),
         ('東姑', '冬菇')
     ]
