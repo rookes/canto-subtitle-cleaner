@@ -101,7 +101,7 @@ def process_directory(input_directory, output_directory="", output_prefix="", ad
     return
 
 def print_usage():
-    print(f"usage: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-o <output_directory> | -p <output_prefix>] [--add_offset HH:MM:SS] [--debug]")
+    print(f"usage: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-o <output_directory> | -p <output_prefix>] [--add_offset HH:MM:SS] [--add_duration HH:MM:SS] [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
