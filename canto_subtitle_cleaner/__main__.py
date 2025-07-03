@@ -17,6 +17,8 @@ ADD_OFFSET = None
 def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
     new_subtitle_list = []
 
+    adjust_subtitle_breaks(subtitle_list)
+
     for timecode, text in subtitle_list:
         if not isinstance(timecode, srt_timecode):
             raise TypeError("Expected timecode to be of type srt.timecode")
@@ -39,8 +41,6 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
         # new_subtitle_list.append((timecode, '\n'.join([block_cleaned_text])))
         new_subtitle_list.append((timecode, block_cleaned_text))
 
-    adjust_subtitle_breaks(new_subtitle_list)
-
     for timecode, text in subtitle_list:
         if add_offset:
             timecode.add_offset(add_offset)
@@ -51,7 +51,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
     return new_subtitle_list
 
 # Clean up subtitles in an input SRT file, then output with a prefix added on the filename
-def process_file(input_file, output_directory="", output_prefix="", add_offset=None, add_duration=None):
+def process_file(input_file, output_directory="", output_prefix="", add_offset=None, add_duration=None, no_clean=False):
     try:
         # Derive the output file name
         output_file = None
@@ -64,7 +64,8 @@ def process_file(input_file, output_directory="", output_prefix="", add_offset=N
         subtitle_list = srt_to_list(input_file)
         print("Got the input file srt list. Cleaning...")
 
-        subtitle_list = clean_subtitle_list(subtitle_list, add_offset, add_duration)
+        if (not no_clean):
+            subtitle_list = clean_subtitle_list(subtitle_list, add_offset, add_duration)
 
         with_offset_str = ""
         if add_offset:
@@ -81,7 +82,7 @@ def process_file(input_file, output_directory="", output_prefix="", add_offset=N
         quit()
 
 # Run process_file on all the SRT files in a directory
-def process_directory(input_directory, output_directory="", output_prefix="", add_offset=None, add_duration=None):
+def process_directory(input_directory, output_directory="", output_prefix="", add_offset=None, add_duration=None, no_clean=False):
     try:
         # List all .srt files in the directory
         srt_files = [f for f in os.listdir(input_directory) if f.endswith('.srt')]
@@ -93,7 +94,7 @@ def process_directory(input_directory, output_directory="", output_prefix="", ad
         # Process each file
         for srt_file in srt_files:
             full_path = os.path.join(input_directory, srt_file)
-            process_file(full_path, output_directory, output_prefix, add_offset, add_duration)
+            process_file(full_path, output_directory, output_prefix, add_offset, add_duration, no_clean)
 
     except Exception as e:
         print(f"An error occurred while processing the directory: {e}")
@@ -101,7 +102,7 @@ def process_directory(input_directory, output_directory="", output_prefix="", ad
     return
 
 def print_usage():
-    print(f"usage: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-o <output_directory> | -p <output_prefix>] [--add_offset HH:MM:SS] [--add_duration HH:MM:SS] [--debug]")
+    print(f"usage: python -m {PACKAGE_NAME} [<input_file> | -d <input_directory>] [-o <output_directory> | -p <output_prefix>] [--add_offset HH:MM:SS] [--add_duration HH:MM:SS] [--no_clean] [--debug]")
     return
 
 ######################################## MAIN SECTION #########################################
@@ -115,6 +116,7 @@ def main():
     output_directory = ""
     add_offset = None
     add_duration = None
+    no_clean = False
 
     # Check if there are arguments 
     if len(sys.argv) < 2:
@@ -141,6 +143,10 @@ def main():
             print_usage()
             quit()
 
+    # --no_clean
+    if "--no_clean" in sys.argv:
+        no_clean = True
+    
     # --add_offset
     if "--add_offset" in sys.argv:
         prefix_index = sys.argv.index("--add_offset")
@@ -195,10 +201,10 @@ def main():
             print_usage()
             quit()
         input_directory = validate_path(sys.argv[2])
-        process_directory(input_directory, output_directory, OUTPUT_PREFIX, add_offset, add_duration)
+        process_directory(input_directory, output_directory, OUTPUT_PREFIX, add_offset, add_duration, no_clean)
     else:
         input_file = validate_path(sys.argv[1])
-        process_file(input_file, output_directory, OUTPUT_PREFIX, add_offset, add_duration)
+        process_file(input_file, output_directory, OUTPUT_PREFIX, add_offset, add_duration, no_clean)
 
 if __name__ == "__main__":
     main()

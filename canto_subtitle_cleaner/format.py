@@ -60,8 +60,8 @@ def adjust_subtitle_breaks(subtitle_list):
 
     for i, (timecode, text) in enumerate(subtitle_list):
         if prev_text and text:
-            # If final character of previous is punctuation, skip
-            if re.match(r'[？…，]', prev_text[-1]):
+            # If final character of previous is not a Chinese letter, skip
+            if re.match(r'[\x00-\x7F]', prev_text[-1]):
                 prev_text = text
                 prev_timecode = timecode
                 continue
