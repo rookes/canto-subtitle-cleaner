@@ -229,7 +229,8 @@ def clean_subtitle_misc(text):
         (r'黎([\u4e00-\u9fff][？！，…\n])', r'嚟\1'),
         (r'^難道', '唔通'),
         ('傾計', '傾偈'),
-        (r'傾([\u4e00-\u9fff])計', r'傾\1偈')
+        (r'傾([\u4e00-\u9fff])計', r'傾\1偈'),
+        ('日圓', '円')
     ]
     
     # Fix Misc Cantonese errors
@@ -331,7 +332,8 @@ def clean_subtitle_misc(text):
         ('早頭', '早唞'),
         ('錢鞍', '錢罌'),
         ('先領', '先令'),
-        ('細理', '犀利')
+        ('細理', '犀利'),
+        ('細利', '犀利')
     ]
     
     text = resub(text, regex_list_commas)
@@ -473,7 +475,8 @@ def update_particle_conventions(text):
         (r'咩啊[，]?話？', '咩話？'),
         (r'係邊([度]?)啊？', r'喺邊\1啊？'),
         ('就得啦', '就得喇'),
-        ('嘅喎', '㗎喎')
+        ('嘅喎', '㗎喎'),
+        ('係啦', '係喇')
     ]
     return resub(text, regex_list_particles)
 
@@ -557,6 +560,9 @@ def convert_chinese_numbers_in_text(text):
         if any(word in chinese_num for word in uncertain_words):
             return None
 
+        if (chinese_num[0] not in chinese_digits and chinese_num[0] != '十'):
+            return None
+
         num = 0
         unit = 1
         temp = 0
@@ -564,6 +570,7 @@ def convert_chinese_numbers_in_text(text):
 
         length = len(chinese_num)
         i = 0
+
         while i < length:
             char = chinese_num[i]
             if char in chinese_digits:
