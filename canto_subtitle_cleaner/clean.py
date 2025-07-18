@@ -125,7 +125,8 @@ def replace_standard_chinese(text):
         ('出來', '出嚟'),
         ('對不起', '對唔住'),
         ('抱唔住', '對唔住'),
-        ('好細利', '好犀利')
+        ('好細利', '好犀利'),
+        ('慢住', '咪住')
     ]
     return resub(text, regex_list)
 
