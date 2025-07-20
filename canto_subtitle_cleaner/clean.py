@@ -609,7 +609,7 @@ def convert_chinese_numbers_in_text(text):
             else:
                 return None
             
-        if 10 < num < 100000 and num not in {100, 1000}:
+        if 10 < num < 100000 and num not in {100, 1000, 10000}:
             return str(num)
         else:
             return None
