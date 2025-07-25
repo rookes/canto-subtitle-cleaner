@@ -82,7 +82,7 @@ def adjust_subtitle_breaks(subtitle_list):
 
                 delta_ms = timecode - prev_timecode
 
-                if delta_ms < 801 and char not in OMIT_CHARS:
+                if delta_ms < 1000 and char not in OMIT_CHARS:
                     subtitle_list[i - 1] = (prev_timecode, prev_text + char + question_mark)
                     
                     print(f"============ Subtitle break: Pulling back char {char} from line {i}. ============")
