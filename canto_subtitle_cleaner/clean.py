@@ -336,7 +336,9 @@ def clean_subtitle_misc(text):
         ('錢鞍', '錢罌'),
         ('先領', '先令'),
         ('細理', '犀利'),
-        ('細利', '犀利')
+        ('細利', '犀利'),
+        ('痴槍', '枝槍'),
+        ('漢寶包', '漢寶包')
     ]
     
     text = resub(text, regex_list_commas)
