@@ -198,7 +198,7 @@ def clean_question_final_particles(text):
 def clean_subtitle_misc(text):
     # Add a comma before or after certain words    
     regex_list_commas = [
-        (r'(?<![？！，])(?<!^)(?<![之])但係(?![，！？])', r'，但係'),
+        (r'(?<![？！，…])(?<!^)(?<![之])但係(?![，！？])', r'，但係'),
         (r'(?<![？！，])(?<!^)(?<![之只])不過(?![，！？])', r'，不過'),
         (r'(?<![？！，])(?<!^)雖然(?![，！？])', r'，雖然'),
         (r'(?<![？！，哋咁噉你佢我])(?<!^)首先(?![，！？])', r'，首先'), 
