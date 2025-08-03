@@ -101,7 +101,7 @@ def replace_standard_chinese(text):
         ('果啲', '嗰啲'),
         ('小鳥', '雀仔'),
         ('鳥仔', '雀仔'),
-        (r'睡(?![眠]', '瞓'),
+        (r'(?<![早])睡(?![眠])', '瞓'),
         ('明日', '聽日'),
         ('很好', '好好'),
         ('不要', '唔好'),
@@ -124,7 +124,8 @@ def replace_standard_chinese(text):
         ('出來', '出嚟'),
         ('對不起', '對唔住'),
         ('抱唔住', '對唔住'),
-        ('好細利', '好犀利')
+        ('好細利', '好犀利'),
+        ('不用', '唔使')
     ]
     return resub(text, regex_list)
 
@@ -169,6 +170,7 @@ def clean_question_final_particles(text):
             s = s.replace('啫？', '唧？')
         elif has_question_mark:         # has question mark and no question word
             s = s.replace('㗎？','嘎？')
+            s = s.replace('啊？','呀？')
 
             # 啊 -> 呀 in cases like "乜你覺得唔開心啊？"
             if s[0] == '乜':
@@ -198,7 +200,7 @@ def clean_question_final_particles(text):
 def clean_subtitle_misc(text):
     # Add a comma before or after certain words    
     regex_list_commas = [
-        (r'(?<![？！，…])(?<!^)(?<![之])但係(?![，！？])', r'，但係'),
+        (r'(?<![？！，…])(?<!^)(?<![？！，…之])但係(?![，！？])', r'，但係'),
         (r'(?<![？！，])(?<!^)(?<![之只])不過(?![，！？])', r'，不過'),
         (r'(?<![？！，])(?<!^)雖然(?![，！？])', r'，雖然'),
         (r'(?<![？！，哋咁噉你佢我])(?<!^)首先(?![，！？])', r'，首先'), 
