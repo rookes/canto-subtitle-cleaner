@@ -169,13 +169,13 @@ def clean_question_final_particles(text):
             s = s.replace('呀', '啊')
             s = s.replace('嘎', '㗎')
             s = s.replace('啫？', '唧？')
+
+            # 啊 -> 呀 in cases like "乜你覺得唔開心啊？"
+            if s[0] == '乜' and s[1] != '嘢':
+                s = s.replace('啊？', '呀？')
         elif has_question_mark:         # has question mark and no question word
             s = s.replace('㗎？','嘎？')
             s = s.replace('啊？','呀？')
-
-            # 啊 -> 呀 in cases like "乜你覺得唔開心啊？"
-            if s[0] == '乜':
-                s = s.replace('啊？', '呀？')
         else:                           # no question mark and no question word
             s = s.replace('呀', '啊')
             s = s.replace('嘎', '㗎')
