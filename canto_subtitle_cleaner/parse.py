@@ -6,6 +6,8 @@ STANDALONE_START_CHARS = {"噉", "喂", "噢", "嗯", "哦", "嗱", "係", "好"
 
 # Punctuation characters that break lines into independent segments
 RE_DELIMITING_PUNCTUATION = re.compile(r'([，？！…。：；]+)')
+RE_QUESTION_DELIMITING_PUNCTUATION = re.compile(r'([？！。：；]+)')
+
 
 RE_QUESTION_PAT = r'([\u4e00-\u9fff])唔\1'        
 QUESTION_WORDS = ['做乜', '係咪', '未', '有冇', '好冇', '邊', '咩', '邊個', '點解', '幾歲', '幾耐', '幾時', '邊度', '點', '點樣', '幾多', '乜嘢', '嗎']
@@ -16,7 +18,7 @@ NOT_NUM = r'[^\d零一二兩两三四五六七八九十百千]'
 
 def segments(line):
     """Split a line into segments based on punctuation and standalone characters."""
-    line = re.sub(RE_DELIMITING_PUNCTUATION, r'\1,', line) # add an English comma as our new delimiter
+    line = re.sub(RE_QUESTION_DELIMITING_PUNCTUATION, r'\1,', line) # add an English comma as our new delimiter
     line = [x for x in line.split(',') if x] # remove empty segments
     
     return line
