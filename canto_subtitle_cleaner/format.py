@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 import pycantonese
 import warnings
+import math
 from canto_subtitle_cleaner.parse import is_punctuation, is_non_chinese, RE_DELIMITING_PUNCTUATION
 
 def linebreak(text, line_max_length=21):
@@ -92,6 +93,29 @@ def adjust_subtitle_breaks(subtitle_list):
                     
                     text = text[len(char + question_mark) + 1:]
                     subtitle_list[i] = (timecode, text)
+
+        prev_text = text
+        prev_timecode = timecode
+
+    return subtitle_list
+
+def magnetize_endings(subtitle_list, max_delta_ms=300, intermediate_delta_ms=1000):
+    """If the end of a subtitle is within max_delta_ms of the start of the next, set the end of the first to 40ms before the start of the next."""
+    prev_timecode = None
+    prev_text = None
+    MIN_DIFF_MS = 40
+
+    for i, (timecode, text) in enumerate(subtitle_list):
+        if prev_timecode and timecode:  
+            diff = timecode - prev_timecode
+
+            if diff < max_delta_ms and diff > MIN_DIFF_MS:
+                prev_timecode.add_duration(diff - MIN_DIFF_MS) 
+                subtitle_list[i - 1] = (prev_timecode, prev_text)
+            elif diff > max_delta_ms and diff < intermediate_delta_ms:
+                intermediate_diff = (diff - MIN_DIFF_MS) - math.floor((diff - MIN_DIFF_MS) * 0.25)
+                prev_timecode.add_duration(intermediate_diff)
+                subtitle_list[i - 1] = (prev_timecode, prev_text)
 
         prev_text = text
         prev_timecode = timecode

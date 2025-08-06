@@ -86,7 +86,8 @@ def standardize_chars_hk(text):
         ('爹地', '爹哋'),
         ('妳', '你'),
         ('您', '你'),
-        ('癐', '攰')
+        ('癐', '攰'),
+        ('倆', '兩')
         
     ]
     return resub(text, regex_list)
@@ -94,7 +95,7 @@ def standardize_chars_hk(text):
 def replace_standard_chinese(text):
     regex_list = [
         ('千萬別', '千祈唔好'),
-        (r'(?<![天不毫虛可])無(?![不敵依靠仇怨奈辜意上他倫價力助論窮言瑕限])', '冇'),
+        (r'(?<![天不毫虛可])無(?![不敵依靠仇怨奈辜意上他倫價力助論窮言瑕限邪聊])', '冇'),
         (r'(?<![中兵出士打搭標目紅綠藍])的(?![士式水波確骰薂])', '嘅'),
         ('差不多', '差唔多'),
         ('果陣', '嗰陣'),
@@ -127,7 +128,8 @@ def replace_standard_chinese(text):
         ('抱唔住', '對唔住'),
         ('好細利', '好犀利'),
         ('慢住', '咪住'),
-        ('閉嘴', '收聲')
+        ('閉嘴', '收聲'),
+        ('肩膀', '膊頭')
     ]
     return resub(text, regex_list)
 
@@ -345,7 +347,12 @@ def clean_subtitle_misc(text):
         (r'打[交擾攪]晒', '打搞晒'),
         (r'用黎', '用嚟'),
         (r'唔駛', '唔使'),
-        (r'好耶', '好嘢')
+        (r'好耶', '好嘢'),
+        ('含辛遇苦', '含辛茹苦'),
+        ('聽手', '停手'),
+        ('別喇', '弊喇'),
+        ('中意', '鍾意')
+
     ]
     
     text = resub(text, regex_list_commas)
@@ -492,7 +499,8 @@ def update_particle_conventions(text):
         (r'係邊([度]?)啊？', r'喺邊\1啊？'),
         ('就得啦', '就得喇'),
         ('嘅喎', '㗎喎'),
-        ('係啦', '係喇')
+        ('係啦', '係喇'),
+        ('嘅…', '𠸏')
     ]
     return resub(text, regex_list_particles)
 
@@ -670,7 +678,7 @@ def clean_subtitle(text):
     text = clean_interjections(text)
 
     text = format.linebreak(text)
-
+    
     # TODO: more line breaks and formatting
 
     # Remove commas

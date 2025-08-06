@@ -6,7 +6,7 @@ import traceback
 from datetime import datetime
 from canto_subtitle_cleaner.srt import srt_to_list, list_to_srt, timecode as srt_timecode
 from canto_subtitle_cleaner.clean import clean_subtitle
-from canto_subtitle_cleaner.format import adjust_subtitle_breaks
+from canto_subtitle_cleaner.format import adjust_subtitle_breaks, magnetize_endings
 
 PACKAGE_NAME = 'canto_subtitle_cleaner'
 DEBUG_MODE = False  # Set to True for debugging output
@@ -18,6 +18,7 @@ def clean_subtitle_list(subtitle_list, add_offset=None, add_duration=None):
     new_subtitle_list = []
 
     adjust_subtitle_breaks(subtitle_list)
+    magnetize_endings(subtitle_list)
 
     for timecode, text in subtitle_list:
         if not isinstance(timecode, srt_timecode):
