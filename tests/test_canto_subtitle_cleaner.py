@@ -87,6 +87,7 @@ class TestParseFunctions(unittest.TestCase):
         self.assertEqual(clean_subtitle("你二十三歲？一二三四五六七八九十"), "你23歲？一二三四五六七八九十")
         self.assertEqual(clean_subtitle("一二三四年果陣佢計咗數，「一二三」"), "1234年嗰陣佢計咗數，「一二三」")
         self.assertEqual(clean_subtitle("加埋一齊係四萬五千零一十蚊"), "加埋一齊係45010蚊")
+        self.assertEqual(clean_subtitle("會活到一百零八歲"), "會活到108歲")
 
     def test_㗎咩(self):
         self.assertEqual(clean_subtitle("你覺得我難睇㗎嘛？"), "你覺得我難睇㗎咩？")
