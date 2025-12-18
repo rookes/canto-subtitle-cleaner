@@ -2,7 +2,7 @@
 
 import re
 import warnings
-from datetime import datetime, time as dt_time
+from datetime import datetime, timedelta
 
 class timecode:
     """A class to represent an SRT timecode."""
@@ -65,6 +65,8 @@ class timecode:
         """Adds an offset to the end of the timecode."""
         if isinstance(duration, datetime) or isinstance(duration, timecode):
             self.end_time = (duration - self.TIME_ZERO + self.end_time)
+        elif isinstance(duration, (int, float)):
+            self.end_time = self.end_time + timedelta(milliseconds=duration)
         else:
             try:
                 duration = datetime.strptime(str(duration), timecode.TIMECODE_FORMAT)
