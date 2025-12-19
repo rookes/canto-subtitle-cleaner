@@ -132,7 +132,8 @@ def replace_standard_chinese(text):
         ('好細利', '好犀利'),
         ('慢住', '咪住'),
         ('閉嘴', '收聲'),
-        ('肩膀', '膊頭')
+        ('肩膀', '膊頭'),
+        ('糟了', '弊喇')
     ]
     return resub(text, regex_list)
 
@@ -216,7 +217,7 @@ def clean_subtitle_misc(text):
 
     # Misc changes for conventions
     regex_list_misc = [
-        (r'咁(?![多少耐濟滯細大靚高低簡廣厚短瘦長痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈悶])', '噉'),
+        (r'咁(?![多少耐濟滯細大靚高低簡廣厚短瘦長痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈悶煩])', '噉'),
         (r'(?<![\u4e00-\u9fff])咁(?=[多耐濟滯細大靚高簡廣厚短瘦長少痛遲慘啱快難美遠容犀重脆硬蠢嚴奇荒熟遙弱辛平粗清慢心矮叻臭嘈悶]啲)', '噉，'),
         (r'噉(' + ZH + ZH + r')嘅', r'咁\1嘅'),
         (r'噉(認真|緊張|困難|容易|百厭)', r'咁\1'), # change to 咁 before specific 2-char adjectives
@@ -367,7 +368,6 @@ def clean_subtitle_misc(text):
         ('癢癢沉沉', '吟吟沉沉'),
         ('嗰嗰', '個個'),
         ('偷偷地', '偷偷哋')
-
     ]
     
     text = resub(text, regex_list_commas)
