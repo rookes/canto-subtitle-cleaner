@@ -200,7 +200,7 @@ def clean_question_final_particles(text):
         (r'嘅？', '𠸏？'),
         ('啦啦聲', '嗱嗱聲'),
         (r'[喇啦]掛', '喇啩'),
-        (r'([啊喎喇啦㗎咋噃嘛嗎])(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯掛啩])', r'\1，'), #Add comma after final particles
+        (r'([啊喎喇啦㗎咋噃嘛嗎])(?![？\n！，…啊呀吖喇啦喎啝噃咩吒咋喳啫唧嘛嗱呢𠻹添㖭嗎嘛囉囖咯掛啩吓])', r'\1，'), #Add comma after final particles
         (r'^啊…', '') # Remove isolated 啊…
     ]
 
